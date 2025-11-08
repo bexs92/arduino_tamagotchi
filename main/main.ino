@@ -181,7 +181,7 @@ void loop() {
     
     
     //analogWrite(led_pin,(6*frameNumber));
-    sprite_anim.retreiveFrame(frameNumber,time,sm.get_in_menu(),sm.get_action(),return_needs(hunger_toggle,poop_toggle,sleepy_toggle,tired_toggle,sick_toggle),onscreen_poops,sm.get_menu_count(),sm.get_page_count(),new_lcd,data,sm,game_time_H,game_time_M
+    sprite_anim.retreiveFrame(frameNumber,time,return_needs(hunger_toggle,poop_toggle,sleepy_toggle,tired_toggle,sick_toggle),onscreen_poops,new_lcd,data,sm,game_time_H,game_time_M
     );
 
   //something that checks data

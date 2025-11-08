@@ -6,6 +6,7 @@
 #include <sprites.h>
 #include <button.h>
 #include "attack.h"
+#include "clock.h"
 
 uint8_t walk_L[SPRITE_SIZE];
 uint8_t walk_R[SPRITE_SIZE];
@@ -17,46 +18,6 @@ uint8_t sleep_L[SPRITE_SIZE];
 uint8_t sad_L[SPRITE_SIZE];
 uint8_t sad_R[SPRITE_SIZE];
 uint8_t happy_L[SPRITE_SIZE];
-
-const unsigned char* clocks[24]={
-    clock_0,
-    clock_1,
-    clock_2,
-    clock_3,
-    clock_4,
-    clock_5,
-    clock_6,
-    clock_7,
-    clock_8,
-    clock_9,
-    clock_10,
-    clock_11,
-    clock_12,
-    clock_13,
-    clock_14,
-    clock_15,
-    clock_16,
-    clock_17,
-    clock_18,
-    clock_19,
-    clock_20,
-    clock_21,
-    clock_22,
-    clock_23
-};
-
-const unsigned char* number_bitmap[10] = {
-    number_0,
-    number_1,
-    number_2,
-    number_3,
-    number_4,
-    number_5,
-    number_6,
-    number_7,
-    number_8,
-    number_9
-};
 
 const char* name_list[18] = {
     "Catmon",
@@ -107,7 +68,6 @@ bool loadSprite(const char* digimon,const char* action,const char* side,uint8_t*
     File spriteFile = sd.open(filename,FILE_READ);
 
     if (spriteFile) Serial.println("Managed to open file");
-    //else Serial.println("No luck");
 
     if (!spriteFile) {
         Serial.println("Failed to open sprite file");
@@ -121,8 +81,6 @@ bool loadSprite(const char* digimon,const char* action,const char* side,uint8_t*
     }
 
     spriteFile.close();
-
-    //Serial.println("Sprite loaded");
 
     return true;
 
@@ -306,24 +264,24 @@ void animation::initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* 
 
 }
 
-void animation::retreiveFrame(int frameNo, unsigned long timeCheck,int toggle,int action,int need,int
-                              poops,int menu_number,int page_number,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,int game_H,int game_M){
+void animation::retreiveFrame(int frame_number, unsigned long time_check,int need,int
+                              poops,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,int game_H,int game_M){
 
-    if(toggle==1){
-        draw_menu(menu_number,page_number,frameNo,timeCheck,action,need,lcd,data,sm);
+    if(sm.get_in_menu()==1){
+        draw_menu(frame_number,time_check,sm.get_action(),need,lcd,data,sm);
     }
 
     else{
 
         if(need>0){
-            need_anim(frameNo,need,poops,menu_number,lcd);
+            need_anim(frame_number,need,poops,sm.get_menu_count(),lcd);
         }
 
         else{
 
             if(pooping_toggle!=poops){
                 if(poops!=0){
-                    pooping_anim(frameNo,menu_number,poops,toggle,lcd);
+                    pooping_anim(frame_number,sm.get_menu_count(),poops,sm.get_in_menu(),lcd);
                 }
                 else{
                     pooping_toggle=0;
@@ -331,44 +289,25 @@ void animation::retreiveFrame(int frameNo, unsigned long timeCheck,int toggle,in
             }
 
             else {
-                int horizontal_dist = h_dist[frameNo];
+                int horizontal_dist = h_dist[frame_number];
 
                 if(poops>0){
                     horizontal_dist=horizontal_dist-((minus_poop[poops])*5);
                 }
 
-                frame(orderArray[frameNo],horizontal_dist,15,frameNo,toggle,poops,menu_number,lcd);
+                frame(orderArray[frame_number],horizontal_dist,15,frame_number,poops,sm.get_menu_count(),lcd);
+
             }
 
         }
     }
 
-    lcd.drawBitmap(52,0,clocks[game_H],17,17,BLACK);
-
-    float angle = 0.105*(game_M-15);
-
-    int y_value = round(4*(sin(angle)));
-    int x_value = round(4*(cos(angle)));
-
-    if(game_M>16&&game_M<42){
-        lcd.drawLine(60,8,60+x_value,8+y_value,BLACK);
-    }
-
-    else {
-        lcd.drawLine(60,8,60+x_value,8+y_value,WHITE);
-    }
-
-
-    lcd.drawBitmap(52,18,number_bitmap[round(game_H/10)],3,5,BLACK);
-    lcd.drawBitmap(56,18,number_bitmap[game_H%10],3,5,BLACK);
-    lcd.drawBitmap(59,18,number_colon,3,5,BLACK);
-    lcd.drawBitmap(62,18,number_bitmap[round(game_M/10)],3,5,BLACK);
-    lcd.drawBitmap(66,18,number_bitmap[game_M%10],3,5,BLACK);
+    draw_clock(game_H,game_M,lcd);
 
     lcd.display();
 }
 
-void animation::frame(uint8_t* image,int xPos, int yPos,int frameNumber,int toggle,int poops,int menu_number,Adafruit_PCD8544 lcd) {
+void animation::frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number,Adafruit_PCD8544 lcd) {
 
     lcd.clearDisplay();
     lcd.drawBitmap(xPos,yPos,image,16,16,BLACK);
@@ -377,7 +316,7 @@ void animation::frame(uint8_t* image,int xPos, int yPos,int frameNumber,int togg
     lcd.drawBitmap(menu_steps_H[menu_number],menu_steps_V[menu_number],menu_array[menu_number],11,10,BLACK);
 
     if (poops>0){
-        if (frameNumber%2==0){
+        if (frame_number%2==0){
             for(int i=0; i<poops; i++){
                 lcd.drawBitmap(poop_steps_H[i],poop_steps_V[i],poop1,11,10,BLACK);
             }
@@ -390,19 +329,23 @@ void animation::frame(uint8_t* image,int xPos, int yPos,int frameNumber,int togg
 
     }
 
-    //lcd.display();
-
  };
 
-void animation::draw_menu(int menu_number,int page_number,int frameNumber,unsigned long time ,int action,int need,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm){
+void animation::draw_menu(int frame_number,unsigned long time ,int action,int need,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm){
+
+    int menu_number = sm.get_menu_count();
+    int page_number = sm.get_page_count();
+
+    //CLearing the display
+
     lcd.clearDisplay();
     lcd.drawRect(0,0,50,48,BLACK);
+
+    //highlighting the menu icon
 
     lcd.drawBitmap(menu_steps_H[menu_number],menu_steps_V[menu_number],menu_array[menu_number],11,10,BLACK);
 
     lcd.setCursor(4,16);
-
-    //Serial.println(page_number);
 
     if (menu_number==0){
         Serial.println("Nothing selected");
@@ -415,10 +358,10 @@ void animation::draw_menu(int menu_number,int page_number,int frameNumber,unsign
 
     if (menu_number==2){
         if(page_number<2){
-            food_page(page_number,frameNumber,time,action,lcd,data);
+            food_page(page_number,frame_number,time,action,lcd,data);
         }
         else {
-            nope_anim(frameNumber,lcd);
+            nope_anim(frame_number,lcd);
         }
     }
 
@@ -428,11 +371,11 @@ void animation::draw_menu(int menu_number,int page_number,int frameNumber,unsign
                 hp_anim(sm.get_training(),page_number,lcd,data,sm);
             }
             if(page_number==1){
-                mp_anim(frameNumber,sm.get_training(),lcd,data,sm,time);
+                mp_anim(frame_number,sm.get_training(),lcd,data,sm,time);
             }
 
             if(page_number==2){
-                off_anim(frameNumber,sm.get_time_store(),time,sm.get_training(),lcd);
+                off_anim(frame_number,sm.get_time_store(),time,sm.get_training(),lcd);
             }
 
             if(page_number==4){
@@ -452,10 +395,10 @@ void animation::draw_menu(int menu_number,int page_number,int frameNumber,unsign
     if (menu_number==5){
 
         if(page_number==1){
-            clean_anim(frameNumber,1,lcd);
+            clean_anim(frame_number,1,lcd);
         }
         else {
-            toilet_anim(frameNumber,lcd);
+            toilet_anim(frame_number,lcd);
         }
 
     }
@@ -463,10 +406,10 @@ void animation::draw_menu(int menu_number,int page_number,int frameNumber,unsign
     if (menu_number==6){
         if(action==1){
             if(page_number==0){
-                rest_anim(frameNumber,lcd);
+                rest_anim(frame_number,lcd);
             }
             else{
-                rest_anim(frameNumber,lcd);
+                rest_anim(frame_number,lcd);
             }
         }
         else{
@@ -480,12 +423,11 @@ void animation::draw_menu(int menu_number,int page_number,int frameNumber,unsign
     }
 
     if (menu_number==8){
-        disc_page(page_number,frameNumber,action,lcd,data);
+        disc_page(page_number,frame_number,action,lcd,data);
     }
 }
 
 void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data){
-    //Serial.println(page_number);
     lcd.setTextColor(BLACK,WHITE);
 
     if (page_number==0) {
@@ -1000,32 +942,23 @@ void animation::need_anim(int frameNumber,int need,int poops,int menu_number,Ada
     }
 
     if (frameNumber%2==0){
-        frame(sad_L, n_h_dist, 16,frameNumber,0,poops,menu_number,lcd);
-        //lcd.drawBitmap(16,16,sad_L,16,16,BLACK);
+        frame(sad_L, n_h_dist, 16,frameNumber,poops,menu_number,lcd);
         lcd.drawBitmap(bub_dist,16,bubble_small,12,13,BLACK);
-        //lcd.display();
-        //frame(sad_L, n_h_dist, 16,frameNumber,0,poops,menu_number,lcd);
     }
 
     else{
-        //lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
-        frame(roar_L, n_h_dist, 16,frameNumber,0,poops,menu_number,lcd);
+
+        frame(roar_L, n_h_dist, 16,frameNumber,poops,menu_number,lcd);
         lcd.drawBitmap(bub_dist,16,bubble_big,12,13,BLACK);
         lcd.drawBitmap(bub_dist,15,need_sprite[needs_order[need][((frameNumber%16)-1)/2]],11,10,BLACK);
-        //frame(roar_L, n_h_dist, 16,frameNumber,0,poops,menu_number,lcd);
-
-        //lcd.display();
 
      }
 
     lcd.drawBitmap(menu_steps_H[menu_number],menu_steps_V[menu_number],menu_array[menu_number],11,10,BLACK);
 
-    //lcd.display();
 }
 
 void animation::pooping_anim(int frameNumber,int menu_number,int poops,int toggle,Adafruit_PCD8544 lcd) {
-    //lcd.clearDisplay();
-    //lcd.drawRect(0,0,50,48,BLACK);
 
     int p_h_dist = 28;
 
@@ -1034,40 +967,34 @@ void animation::pooping_anim(int frameNumber,int menu_number,int poops,int toggl
     }
 
     if (frameNumber%6==0){
-        frame(sleep_L, p_h_dist, 16,frameNumber,toggle,poops,menu_number,lcd);
+        frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
     }
 
     if (frameNumber%6==1){
-        frame(sleep_L, p_h_dist, 16,frameNumber,toggle,poops,menu_number,lcd);
+        frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
     }
 
     if (frameNumber%6==2){
-         frame(sleep_L, p_h_dist, 16,frameNumber,toggle,poops,menu_number,lcd);
+         frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
     }
 
     if (frameNumber%6==3){
-        frame(roar_L, p_h_dist, 16,frameNumber,toggle,poops,menu_number,lcd);
+        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
     }
     if (frameNumber%6==4){
-        frame(roar_L, p_h_dist, 16,frameNumber,toggle,poops,menu_number,lcd);
+        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
     }
 
     if (frameNumber%6==5){
-        frame(roar_L, p_h_dist, 16,frameNumber,toggle,poops,menu_number,lcd);
+        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
         pooping_toggle=poops;
     }
-
-     //lcd.display();
 
 }
 
 void animation::nope_anim(int frameNumber,Adafruit_PCD8544 lcd) {
 
     Serial.println("checking");
-
-    //lcd.clearDisplay();
-    //lcd.drawRect(0,0,50,48,BLACK);
-
 
     if (frameNumber%2==0){
         lcd.drawBitmap(16,16,sad_L,16,16,BLACK);
