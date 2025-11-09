@@ -3,15 +3,6 @@
 
 #include "Arduino.h"
 
-// struct Button {
-//
-//     int pin;
-//     int bttn;
-//     int toggle;
-//     unsigned long last_time;
-//     unsigned long diff;
-// };
-
 class Tamagotchi{
 
 public:
@@ -33,18 +24,6 @@ public:
     void gen_overfeed(unsigned long time);
     unsigned long minute(unsigned long time);
     unsigned long second(unsigned long time);
-
-    // void check(unsigned long time);
-    // void set_menu_count(int entered_num);
-    // void pin_mode();
-    // void set_up_read();
-    // int get_menu_count();
-    // void set_page_count(int entered_num);
-    // int get_page_count();
-    // int get_in_menu();
-    // void set_in_menu(int value);
-    // int get_action();
-    // void set_action(int value);
 
 private:
 

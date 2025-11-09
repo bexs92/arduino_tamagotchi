@@ -7,6 +7,7 @@
 #include <button.h>
 #include "attack.h"
 #include "clock.h"
+#include "encyclopedia.h"
 
 uint8_t walk_L[SPRITE_SIZE];
 uint8_t walk_R[SPRITE_SIZE];
@@ -18,27 +19,6 @@ uint8_t sleep_L[SPRITE_SIZE];
 uint8_t sad_L[SPRITE_SIZE];
 uint8_t sad_R[SPRITE_SIZE];
 uint8_t happy_L[SPRITE_SIZE];
-
-const char* name_list[18] = {
-    "Catmon",
-    "Cheetahmon",
-    "Darkleomon",
-    "Ex-kittydramon",
-    "Horusmon",
-    "Jaguarmon",
-    "Kittydramon",
-    "Leopardmon",
-    "MetalCheetahmon",
-    "Mythicmon",
-    "Racoonmon",
-    "Rikimon",
-    "Sealmon",
-    "Shizimon",
-    "Skunkmon",
-    "Thylacinemon",
-    "Warriormon",
-    "Zemogumon"
-};
 
 const char* training_list[6]{
     "HP",
@@ -101,12 +81,6 @@ void loadCharacter(const char* digimon) {
     sd.end();
 }
 
-const unsigned char* type_list[3]={
-    vaccine,
-    data_d,
-    virus,
-};
-
 const unsigned char* training_bmp[6]={
     full_heart,
     mp_bmp,
@@ -114,37 +88,6 @@ const unsigned char* training_bmp[6]={
     def_bmp,
     spd_bmp,
     brn_bmp
-};
-
-const unsigned char* element[7]={
-    fire,
-    fighting,
-    lightning,
-    earth,
-    sweat,
-    mech,
-    null_item
-};
-
-const int element_list[18][3] = {
-    /*"Catmon"*/{1,6,6},
-    /*"Cheetahmon"*/{4,1,6},
-    /*"Darkleomon"*/{2,0,6},
-    /*"Ex-kittydramon"*/{1,6,6},
-    /*"Horusmon"*/{2,1,6},
-    /*"Jaguarmon"*/{4,1,6},
-    /*"Kittydramon"*/{1,2,6},
-    /*"Leopardmon"*/{4,2,6},
-    /*"MetalCheetahmon"*/{5,4,6},
-    /*"Mythicmon"*/{2,1,6},
-    /*"Racoonmon"*/{1,3,6},
-    /*"Rikimon"*/{2,1,6},
-    /*"Sealmon"*/{4,6,6},
-    /*"Shizimon"*/{2,6,6},
-   /* "Skunkmon"*/{5,6,6},
-   /* "Thylacinemon"*/{1,0,6},
-    /*"Warriormon"*/{1,0,6},
-    /*"Zemogumon"*/{4,1,6}
 };
 
 const unsigned char* menu_array[9] = {
@@ -265,10 +208,10 @@ void animation::initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* 
 }
 
 void animation::retreiveFrame(int frame_number, unsigned long time_check,int need,int
-                              poops,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,int game_H,int game_M){
+                              poops,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,info_node info,int game_H,int game_M){
 
     if(sm.get_in_menu()==1){
-        draw_menu(frame_number,time_check,sm.get_action(),need,lcd,data,sm);
+        draw_menu(frame_number,time_check,sm.get_action(),need,lcd,data,sm,info);
     }
 
     else{
@@ -331,7 +274,7 @@ void animation::frame(uint8_t* image,int xPos, int yPos,int frame_number,int poo
 
  };
 
-void animation::draw_menu(int frame_number,unsigned long time ,int action,int need,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm){
+void animation::draw_menu(int frame_number,unsigned long time ,int action,int need,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,info_node info){
 
     int menu_number = sm.get_menu_count();
     int page_number = sm.get_page_count();
@@ -352,8 +295,7 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     }
 
     if (menu_number==1){
-        stat_page(page_number,lcd,data);
-
+        stat_page(page_number,lcd,data,info);
     }
 
     if (menu_number==2){
@@ -427,25 +369,23 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     }
 }
 
-void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data){
+void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data,info_node info){
     lcd.setTextColor(BLACK,WHITE);
 
     if (page_number==0) {
         char buffer_1[16];
 
-        sprintf(buffer_1, "%s",name_list[data.species]);
+        sprintf(buffer_1, "%s",info.get_name());
 
         lcd.setCursor(4,16);
 
         lcd.println(buffer_1); // Print the formatted string
 
-        lcd.drawBitmap(4,26,type_list[data.type],11,10,BLACK);
+        lcd.drawBitmap(4,26,info.get_type_bitmap(),11,10,BLACK);
 
         for (int i=0; i<3; i++){
-            if(element_list[data.species][i]!=6){
-            //Serial.println();
-               lcd.drawBitmap((15+(i*10)),26,element[element_list[data.species][i]],11,10,BLACK);
-
+            if(info.get_element_array()[i]!=6){
+               lcd.drawBitmap((15+(i*10)),26,info.get_element_bitmap(info.get_element_array()[i]),11,10,BLACK);
             }
         }
     }

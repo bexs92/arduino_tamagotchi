@@ -8,31 +8,7 @@
 #include <button.h>
 #include <tamagotchi.h>
 #include <Arduino.h>
-
-const char* species_list[18] = {
-  "CATMON",
-  "CHEETA",
-  "DARKLE",
-  "EXKITT",
-  "HORUSM",
-  "JAGUAR",
-  "KITTYD",
-  "LEOPAR",
-  "MCHEET",
-  "MYTHIC",
-  "RACOON",
-  "RIKIMO",
-  "SEALMO",
-  "SHIZIM",
-  "SKUNKM",
-  "THYLAC",
-  "WARRIO",
-  "ZEMOGU"
-  };
-
-//FlashStorage(data_storage, digimon_data);
-
-digimon_data data;
+#include <encyclopedia.h>
 
 #define CE D9
 #define RST D10
@@ -45,6 +21,8 @@ Adafruit_PCD8544 new_lcd = Adafruit_PCD8544(CLK,DIN,DC,CE,RST);
 int frameNumber=0;
 
 const char* digimon;
+digimon_data data;
+info_node info;
 
 animation sprite_anim;
 
@@ -103,18 +81,13 @@ void setup() {
 
   Serial.begin(9600);
 
-  data = (digimon_data){9,0,4,20,4,1009,2060,132,100,100,200,52,88,80,0};
-//  EEPROM.put(0,data);
-  //data_storage.write(data);
-
-  //EEPROM.get(0,data);
-  //data = data_storage.read();
+  data = (digimon_data){16,4,20,4,1009,2060,132,100,100,200,52,88,80,0};
+  info.initialise(data.species);
 
   sm.pin_mode();
   
   pinMode(led_pin,OUTPUT);
   analogWrite(led_pin,200);
-  //tone(sound_pin,440);
   
   new_lcd.begin();
   new_lcd.setContrast(72);
@@ -124,11 +97,11 @@ void setup() {
   new_lcd.setTextSize(1);
   new_lcd.setTextColor(BLACK);
 
-  //initialising data:
-  digimon = species_list[data.species];
-  //digimon = species_list[0];
- 
-  //Serial.println("loading...");
+  digimon = info.get_file_name();
+  
+  Serial.println(data.species);
+  Serial.println(info.get_file_name());
+  Serial.println(info.get_name());
   Serial.println(digimon);
 
   loadCharacter(digimon); 
@@ -144,7 +117,10 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
     unsigned long time = millis();
-    
+      Serial.println(data.species);
+  Serial.println(info.get_file_name());
+  Serial.println(info.get_name());
+  Serial.println(digimon);
     sm.set_up_read();
 
     sm.check(time);
@@ -180,8 +156,7 @@ void loop() {
     }
     
     
-    //analogWrite(led_pin,(6*frameNumber));
-    sprite_anim.retreiveFrame(frameNumber,time,return_needs(hunger_toggle,poop_toggle,sleepy_toggle,tired_toggle,sick_toggle),onscreen_poops,new_lcd,data,sm,game_time_H,game_time_M
+    sprite_anim.retreiveFrame(frameNumber,time,return_needs(hunger_toggle,poop_toggle,sleepy_toggle,tired_toggle,sick_toggle),onscreen_poops,new_lcd,data,sm,info,game_time_H,game_time_M
     );
 
   //something that checks data
