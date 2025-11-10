@@ -71,7 +71,6 @@ int game_time_D=0;
 int game_time_H=0;
 int game_time_M=0;
 
-//const unsigned long hour_interval=(1000*60);
 const unsigned long minute_interval=1000;
 
 unsigned long game_time_pt=0;

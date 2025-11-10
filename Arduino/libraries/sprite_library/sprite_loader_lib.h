@@ -10,6 +10,7 @@
 #include <button.h>
 #include <attack.h>
 #include <clock.h>
+#include <encyclopedia.h>
 
 #define SPRITE_SIZE 32
 
@@ -41,7 +42,6 @@ extern const unsigned char menu_alert [] PROGMEM;
 
 struct digimon_data {
     int species;
-    int type; //0=data, 1=vaccine, 2=virus
     int age;
     int weight;
     int hunger;
@@ -61,10 +61,10 @@ struct digimon_data {
      public:
         animation();
         void initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* r_L,unsigned char* n_R,unsigned char* c_R,unsigned char* r_R);
-        void retreiveFrame(int frameNo, unsigned long timeCheck,int need,int poops,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,int game_H,int game_M);
+        void retreiveFrame(int frameNo, unsigned long timeCheck,int need,int poops,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,info_node info,int game_H,int game_M);
         void frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number,Adafruit_PCD8544 lcd);
-        void draw_menu(int frame_number,unsigned long time,int action,int need,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm);
-        void stat_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data);
+        void draw_menu(int frame_number,unsigned long time,int action,int need,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,info_node info);
+        void stat_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data,info_node info);
         void food_page(int page_number,int frameNumber,unsigned long time,int action,Adafruit_PCD8544 lcd,digimon_data data);
         void training_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm);
         void light_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data);

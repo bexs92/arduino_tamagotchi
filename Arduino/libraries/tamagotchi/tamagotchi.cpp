@@ -4,9 +4,9 @@
 
 Tamagotchi::Tamagotchi(){
 
-    hunger_interval=minute(2);
+    hunger_interval=minute(1);
     hunger_range=second(30);
-    last_hunger=minute(1);
+    last_hunger=second(15);
     cm_hunger_interval = minute(1);
     last_hunger_cm=last_hunger+cm_hunger_interval;
 
