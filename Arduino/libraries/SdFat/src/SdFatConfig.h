@@ -65,7 +65,7 @@
 
 #ifndef FILE_COPY_CONSTRUCTOR_SELECT
 /** Specify kind of file copy constructors and copy assignment operators */
-#define FILE_COPY_CONSTRUCTOR_SELECT FILE_COPY_CONSTRUCTOR_PRIVATE
+#define FILE_COPY_CONSTRUCTOR_SELECT FILE_COPY_CONSTRUCTOR_PUBLIC
 #endif  // FILE_COPY_CONSTRUCTOR_SELECT
 /** File move constructors and move assignment operators are deleted. */
 #define FILE_MOVE_CONSTRUCTOR_DELETED 0

@@ -70,9 +70,6 @@ void Statemachine::check(unsigned long time){
 
 //------------------------------------------------------------------------------
 
-    // if(A.bttn==0){
-    //     Serial.println("A");
-    // }
 
         if(A.bttn!=A.toggle){
             A.diff=time-A.last_time;
@@ -87,7 +84,6 @@ void Statemachine::check(unsigned long time){
                     else {
                         menu_count=(menu_count+1)%9;
                         tone(sound_pin,major_scale[menu_count-1]);
-                        //Serial.println(menu_count);
                     }
                 }
                 else {
@@ -107,8 +103,6 @@ void Statemachine::check(unsigned long time){
                     B.toggle=0;
                     if (in_menu==1){
                         Serial.println("selected_option");
-                        // in_action=1;
-                        // tone(sound_pin,G_mid);
                         if(menu_count==3){
                             if(page_count<6){
                                 if(page_count!=2){

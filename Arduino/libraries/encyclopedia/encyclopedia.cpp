@@ -278,7 +278,7 @@ extern const unsigned char* element_bitmaps[]={
     fighting,
     lightning,
     earth,
-    sweat,
+    ice,
     mech,
     null_item
 };

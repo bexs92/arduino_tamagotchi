@@ -8,6 +8,7 @@
 #include "attack.h"
 #include "clock.h"
 #include "encyclopedia.h"
+#include <tamagotchi.h>
 
 uint8_t walk_L[SPRITE_SIZE];
 uint8_t walk_R[SPRITE_SIZE];
@@ -57,7 +58,6 @@ bool loadSprite(const char* digimon,const char* action,const char* side,uint8_t*
 
     for  (int i = 0; i < SPRITE_SIZE && spriteFile.available(); i++) {
         spriteBuffer[i]=spriteFile.read();
-        //Serial.println(spriteBuffer[i]);
     }
 
     spriteFile.close();
@@ -107,37 +107,37 @@ const unsigned char* need_sprite[5]= {sml_meat, poop2, z_bub, sweat, skull};
 // sml_meat, poop2, z_bub, sweat, skull
 const int needs_order[32][8]{
     {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0},          //1
-    {1,1,1,1,1,1,1,1},                         //2
-    {0,1,0,1,0,1,0,1},                //3
-    {2,2,2,2,2,2,2,2},     //4
-    {0,2,0,2,0,2,0,2},        //5
-    {1,2,1,2,1,2,1,2},                 //6
-    {0,1,2,0,1,2,0,1},               //7
-    {3,3,3,3,3,3,3,3},                                   //8
-    {0,3,0,3,0,3,0,3},                    //9
-    {1,3,1,3,1,3,1,3},                             //10
-    {0,1,3,0,1,3,0,1},                     //11
-    {2,3,2,3,2,3,2,3},                 //12
-    {0,2,3,0,2,3,0,2},             //13
-    {1,2,3,1,2,3,1,2},                   //14
-    {0,1,2,3,0,1,2,3},                 //15
-    {4,4,4,4,4,4,4,4},                         //16
-    {0,4,0,4,0,4,0,4},                //17
-    {1,4,1,4,1,4,1,4},                          //18
-    {0,1,4,0,1,4,0,1},                   //19
-    {2,4,2,4,2,4,2,4},             //20
-    {0,2,4,0,2,4,0,2},           //21
-    {1,2,4,1,2,4,1,2},                 //22
-    {0,1,2,4,0,1,2,4},         //23
-    {3,4,3,4,3,4,3,4},                               //24
-    {0,3,4,0,3,4,0,3},                       //25
-    {1,3,4,1,3,4,1,3},                             //26
-    {0,1,3,4,0,1,3,4},                     //27
-    {2,3,4,2,3,4,2,3},                     //28
-    {0,2,3,4,0,2,3,4},                 //29
-    {1,2,3,4,1,2,3,4},                       //30
-    {0,1,2,3,4,0,1,2}                     //31
+    {0,0,0,0,0,0,0,0},
+    {1,1,1,1,1,1,1,1},
+    {0,1,0,1,0,1,0,1},
+    {2,2,2,2,2,2,2,2},
+    {0,2,0,2,0,2,0,2},
+    {1,2,1,2,1,2,1,2},
+    {0,1,2,0,1,2,0,1},
+    {3,3,3,3,3,3,3,3},
+    {0,3,0,3,0,3,0,3},
+    {1,3,1,3,1,3,1,3},
+    {0,1,3,0,1,3,0,1},
+    {2,3,2,3,2,3,2,3},
+    {0,2,3,0,2,3,0,2},
+    {1,2,3,1,2,3,1,2},
+    {0,1,2,3,0,1,2,3},
+    {4,4,4,4,4,4,4,4},
+    {0,4,0,4,0,4,0,4},
+    {1,4,1,4,1,4,1,4},
+    {0,1,4,0,1,4,0,1},
+    {2,4,2,4,2,4,2,4},
+    {0,2,4,0,2,4,0,2},
+    {1,2,4,1,2,4,1,2},
+    {0,1,2,4,0,1,2,4},
+    {3,4,3,4,3,4,3,4},
+    {0,3,4,0,3,4,0,3},
+    {1,3,4,1,3,4,1,3},
+    {0,1,3,4,0,1,3,4},
+    {2,3,4,2,3,4,2,3},
+    {0,2,3,4,0,2,3,4},
+    {1,2,3,4,1,2,3,4},
+    {0,1,2,3,4,0,1,2}
 };
 
 const int h_dist[34] = {
@@ -208,7 +208,7 @@ void animation::initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* 
 }
 
 void animation::retreiveFrame(int frame_number, unsigned long time_check,int need,int
-                              poops,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,info_node info,int game_H,int game_M){
+                              poops,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info,int game_H,int game_M){
 
     if(sm.get_in_menu()==1){
         draw_menu(frame_number,time_check,sm.get_action(),need,lcd,data,sm,info);
@@ -274,7 +274,7 @@ void animation::frame(uint8_t* image,int xPos, int yPos,int frame_number,int poo
 
  };
 
-void animation::draw_menu(int frame_number,unsigned long time ,int action,int need,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,info_node info){
+void animation::draw_menu(int frame_number,unsigned long time ,int action,int need,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info){
 
     int menu_number = sm.get_menu_count();
     int page_number = sm.get_page_count();
@@ -369,7 +369,7 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     }
 }
 
-void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data,info_node info){
+void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,info_node info){
     lcd.setTextColor(BLACK,WHITE);
 
     if (page_number==0) {
@@ -520,7 +520,7 @@ void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,digimon_data dat
 
 }
 
-void animation::food_page(int page_number,int frameNumber,unsigned long time,int action,Adafruit_PCD8544 lcd,digimon_data data){
+void animation::food_page(int page_number,int frameNumber,unsigned long time,int action,Adafruit_PCD8544 lcd,Tamagotchi data){
 
 
     if (page_number==0) {
@@ -566,7 +566,7 @@ void animation::food_page(int page_number,int frameNumber,unsigned long time,int
     //lcd.display();
 }
 
-void animation::training_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm){
+void animation::training_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm){
 
     //Serial.println(page_number);
 
@@ -627,7 +627,7 @@ void animation::training_page(int page_number, Adafruit_PCD8544 lcd,digimon_data
 
 }
 
-void animation::light_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data){
+void animation::light_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data){
 
 
     if (page_number==0) {
@@ -657,7 +657,7 @@ void animation::light_page(int page_number, Adafruit_PCD8544 lcd,digimon_data da
     //lcd.display();
 }
 
-void animation::disc_page(int page_number,int frame_number,int action, Adafruit_PCD8544 lcd,digimon_data data){
+void animation::disc_page(int page_number,int frame_number,int action, Adafruit_PCD8544 lcd,Tamagotchi data){
 
     if (action==0) {
         lcd.drawBitmap(2,14,praise_bmp,11,10,BLACK);
@@ -947,7 +947,7 @@ void animation::nope_anim(int frameNumber,Adafruit_PCD8544 lcd) {
     //lcd.display();
 }
 
-void animation::hp_anim(int frameNumber,int page_number,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm) {
+void animation::hp_anim(int frameNumber,int page_number,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm) {
 
 
         const int blob = 12;
@@ -1025,7 +1025,7 @@ void animation::hp_anim(int frameNumber,int page_number,Adafruit_PCD8544 lcd,dig
 int last_mp=0;
 unsigned long mp_time=0;
 
-void animation::mp_anim(int frameNumber,int buttonPush,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,unsigned long time) {
+void animation::mp_anim(int frameNumber,int buttonPush,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,unsigned long time) {
 
     if(frameNumber%2==0){
         lcd.drawBitmap(8,13,waterfall_3,30,19,BLACK);

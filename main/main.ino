@@ -21,7 +21,6 @@ Adafruit_PCD8544 new_lcd = Adafruit_PCD8544(CLK,DIN,DC,CE,RST);
 int frameNumber=0;
 
 const char* digimon;
-digimon_data data;
 info_node info;
 
 animation sprite_anim;
@@ -50,7 +49,7 @@ const unsigned long action_time[9][12] = {
   
 };
 
-Tamagotchi tama;
+Tamagotchi data;
 
 int hunger_toggle=0;
 int poop_toggle=0;
@@ -80,7 +79,9 @@ void setup() {
 
   Serial.begin(9600);
 
-  data = (digimon_data){16,4,20,4,1009,2060,132,100,100,200,52,88,80,0};
+//loading from card reader;
+  save_data empty = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  data.load_from_card(empty);
   info.initialise(data.species);
 
   sm.pin_mode();
@@ -116,10 +117,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
     unsigned long time = millis();
-      Serial.println(data.species);
-  Serial.println(info.get_file_name());
-  Serial.println(info.get_name());
-  Serial.println(digimon);
+
     sm.set_up_read();
 
     sm.check(time);
@@ -153,13 +151,13 @@ void loop() {
         }
 
     }
-    
-    
-    sprite_anim.retreiveFrame(frameNumber,time,return_needs(hunger_toggle,poop_toggle,sleepy_toggle,tired_toggle,sick_toggle),onscreen_poops,new_lcd,data,sm,info,game_time_H,game_time_M
+
+    sprite_anim.retreiveFrame(frameNumber,time,return_needs(hunger_toggle,poop_toggle,sleepy_toggle,tired_toggle,sick_toggle),
+    onscreen_poops,new_lcd,data,sm,info,game_time_H,game_time_M
     );
 
   //something that checks data
-  if(tama.get_last_hunger()<time){
+  if(data.get_last_hunger()<time){
     if(hunger_toggle==0){
       hunger_toggle=1;
       if(data.hunger>0){
@@ -168,29 +166,29 @@ void loop() {
     }
   }
 
-  if(tama.get_last_hunger_cm()<time){
+  if(data.get_last_hunger_cm()<time){
     data.cm=data.cm+1;
     if(data.happy>2){
       data.happy=data.happy-2;
     }
     hunger_toggle=0;
-    tama.gen_next_hunger(time);
+    data.gen_next_hunger(time);
     frameNumber=0;
   }
 
-  if(tama.get_next_poop()<time){
+  if(data.get_next_poop()<time){
     if(poop_toggle==0){
       poop_toggle=1;
     }
   }
 
-  if(tama.get_next_poop()+tama.get_poop_cm()<time){
+  if(data.get_next_poop()+data.get_poop_cm()<time){
       poop_toggle=0;
-      tama.set_infinite_poop(time);
+      data.set_infinite_poop(time);
       data.cm=data.cm+1;
       onscreen_poops=onscreen_poops+1;
       frameNumber=0;
-      tama.gen_disc_range(time);
+      data.gen_disc_range(time);
   }
 
   if(data.tired<=20){
@@ -215,7 +213,7 @@ void loop() {
 
                   if (data.hunger==3){
                     hunger_toggle=0;
-                    tama.gen_next_hunger(time);
+                    data.gen_next_hunger(time);
                   }
 
                   if (data.hunger<4){
@@ -244,7 +242,7 @@ void loop() {
                       data.happy=data.happy+1;
                       data.disc=data.disc+1;
                       hunger_toggle=0;
-                      tama.gen_next_hunger(time);
+                      data.gen_next_hunger(time);
                   }
 
                   if (data.hunger==3){
@@ -252,7 +250,7 @@ void loop() {
                       data.happy=data.happy+1;
                       data.disc=data.disc+1;
                       hunger_toggle=0;
-                      tama.gen_next_hunger(time);
+                      data.gen_next_hunger(time);
                   }
 
                   if(data.hunger==4) {
@@ -262,11 +260,11 @@ void loop() {
               data.weight=data.weight+2;
               }
 
-              if(tama.get_overfeed()>time){
+              if(data.get_overfeed()>time){
                 overfeed_counter=overfeed_counter+1;
               }
               else {
-                tama.gen_overfeed(time);
+                data.gen_overfeed(time);
                 overfeed_counter=0;
               }
 
@@ -275,7 +273,7 @@ void loop() {
             else {
               //Here's the swap to the no animation
               sm.set_page_count(2);
-              tama.gen_disc_range(time);
+              data.gen_disc_range(time);
             }
           }
 
@@ -290,17 +288,17 @@ void loop() {
               if(hunger_toggle==1){
                   data.cm=data.cm+1;
                   hunger_toggle=0;
-                  tama.gen_next_hunger(time);
+                  data.gen_next_hunger(time);
                   frameNumber=0;
               }
 
               if(poop_toggle==1){
                   poop_toggle=0;
-                  tama.set_infinite_poop(time);
+                  data.set_infinite_poop(time);
                   data.cm=data.cm+1;
                   onscreen_poops=onscreen_poops+1;
                   frameNumber=0;
-                  tama.gen_disc_range(time);
+                  data.gen_disc_range(time);
               }
             
               if(data.tired>8){
@@ -330,7 +328,7 @@ void loop() {
             frameNumber=0;
             if(poop_toggle==1){
               poop_toggle=0;
-              tama.set_infinite_poop(time);
+              data.set_infinite_poop(time);
               if (data.weight>1){
                 data.weight-1;
               }
@@ -363,12 +361,12 @@ void loop() {
               }
               
               if(sm.get_page_count()==1){
-                  if(tama.get_disc_range()>time){
+                  if(data.get_disc_range()>time){
                     data.disc=data.disc+4;
-                    tama.set_disc_range(time-1);
+                    data.set_disc_range(time-1);
                     sm.set_page_count(2);
                     overfeed_counter=0;
-                    tama.set_overfeed(0);
+                    data.set_overfeed(0);
                   }
                   else {
                     data.happy=data.happy-4;

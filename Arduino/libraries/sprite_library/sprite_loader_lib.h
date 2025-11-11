@@ -11,6 +11,7 @@
 #include <attack.h>
 #include <clock.h>
 #include <encyclopedia.h>
+#include "tamagotchi.h"
 
 #define SPRITE_SIZE 32
 
@@ -40,35 +41,18 @@ extern const unsigned char menu_light [] PROGMEM;
 extern const unsigned char menu_med [] PROGMEM;
 extern const unsigned char menu_alert [] PROGMEM;
 
-struct digimon_data {
-    int species;
-    int age;
-    int weight;
-    int hunger;
-    int hp;
-    int mp;
-    int off;
-    int def;
-    int spd;
-    int brn;
-    int happy;
-    int disc;
-    int tired;
-    int cm; /*cm short for care mistakes */
-};
-
  class animation{
      public:
         animation();
         void initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* r_L,unsigned char* n_R,unsigned char* c_R,unsigned char* r_R);
-        void retreiveFrame(int frameNo, unsigned long timeCheck,int need,int poops,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,info_node info,int game_H,int game_M);
+        void retreiveFrame(int frameNo, unsigned long timeCheck,int need,int poops,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info,int game_H,int game_M);
         void frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number,Adafruit_PCD8544 lcd);
-        void draw_menu(int frame_number,unsigned long time,int action,int need,Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm,info_node info);
-        void stat_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data,info_node info);
-        void food_page(int page_number,int frameNumber,unsigned long time,int action,Adafruit_PCD8544 lcd,digimon_data data);
-        void training_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data,Statemachine sm);
-        void light_page(int page_number, Adafruit_PCD8544 lcd,digimon_data data);
-        void disc_page(int page_number,int frame_number, int action,Adafruit_PCD8544 lcd,digimon_data data);
+        void draw_menu(int frame_number,unsigned long time,int action,int need,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info);
+        void stat_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,info_node info);
+        void food_page(int page_number,int frameNumber,unsigned long time,int action,Adafruit_PCD8544 lcd,Tamagotchi data);
+        void training_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm);
+        void light_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data);
+        void disc_page(int page_number,int frame_number, int action,Adafruit_PCD8544 lcd,Tamagotchi data);
         void eating_anim(int frameNumber,unsigned long time,Adafruit_PCD8544 lcd,int meat);
         void toilet_anim(int frameNumber,Adafruit_PCD8544 lcd);
         void disc_anim(int frameNumber,Adafruit_PCD8544 lcd,int page);
@@ -76,8 +60,8 @@ struct digimon_data {
         void clean_anim(int frameNumber,int poops,Adafruit_PCD8544 lcd);
         void pooping_anim(int frameNumber,int menu_number,int poops,int toggle,Adafruit_PCD8544 lcd);
         void nope_anim(int frameNumber,Adafruit_PCD8544 lcd);
-        void hp_anim(int frameNumber,int page_number,Adafruit_PCD8544 lcd,digimon_data data, Statemachine sm);
-        void mp_anim(int frameNumber,int buttonPush,Adafruit_PCD8544 lcd,digimon_data data, Statemachine sm,unsigned long time);
+        void hp_anim(int frameNumber,int page_number,Adafruit_PCD8544 lcd,Tamagotchi data, Statemachine sm);
+        void mp_anim(int frameNumber,int buttonPush,Adafruit_PCD8544 lcd,Tamagotchi data, Statemachine sm,unsigned long time);
         void spd_anim(int frameNumber,Adafruit_PCD8544 lcd);
         void off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count,Adafruit_PCD8544 lcd);
         void rest_anim(int frameNumber,Adafruit_PCD8544 lcd);

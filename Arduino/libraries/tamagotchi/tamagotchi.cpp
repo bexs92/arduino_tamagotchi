@@ -1,23 +1,171 @@
 #include "tamagotchi.h"
 #include "Arduino.h"
+#include <SdFat.h>
 
+
+
+SdFat sd_reader;
 
 Tamagotchi::Tamagotchi(){
+    species;
+    age;
+    weight;
+    hunger;
+    hp;
+    mp;
+    off;
+    def;
+    spd;
+    brn;
+    happy;
+    disc;
+    tired;
+    cm; /*cm short for care mistakes */
 
-    hunger_interval=minute(1);
+    hunger_interval;
+    hunger_range;
+    last_hunger;
+    cm_hunger_interval;
+    last_hunger_cm;
+    poop_interval;
+    poop_range;
+    next_poop;
+    cm_poop_interval;
+    overfeed;
+    disc_range;
+    save_file;
+    o_file;
+}
+
+void Tamagotchi::initialise(int species_value){
+
+    species=species_value;
+    age=4;
+    weight=20;
+    hunger=4;
+    hp=1009;
+    mp=2060;
+    off=132;
+    def=100;
+    spd=102;
+    brn=100;
+    happy=52;
+    disc=88;
+    tired=80;
+    cm=0;
+
+    hunger_interval=minute(2);
     hunger_range=second(30);
-    last_hunger=second(15);
+    last_hunger=minute(1);
     cm_hunger_interval = minute(1);
     last_hunger_cm=last_hunger+cm_hunger_interval;
-
     poop_interval=second(30);
     poop_range=second(20);
     next_poop=minute(12);
     cm_poop_interval =second(30);
-
     overfeed=0;
-
     disc_range=0;
+}
+
+save_data Tamagotchi::create_save(){
+    save_file = (save_data) {
+        species,
+        age,
+        weight,
+        hunger,
+        hp,
+        mp,
+        off,
+        def,
+        spd,
+        brn,
+        happy,
+        disc,
+        tired,
+        cm,
+        hunger_interval,
+        hunger_range,
+        last_hunger,
+        cm_hunger_interval,
+        last_hunger_cm,
+        poop_interval,
+        poop_range,
+        next_poop,
+        cm_poop_interval,
+        overfeed,
+        disc_range
+    };
+
+    return save_file;
+}
+
+void Tamagotchi::save_to_card(save_data& save){
+
+    if (!sd_reader.begin(D6)) {
+        Serial.println("initialization failed!");
+        while (1);
+    }
+
+    o_file = sd_reader.open("tama.dat", FILE_WRITE);
+
+    if (o_file) {
+        sd_reader.remove("tama.dat");
+        o_file.write((uint8_t*)&save,sizeof(save_data));
+        o_file.close();
+        Serial.println("got here");
+        Serial.println("saving file");
+    }
+    else {
+        Serial.println("failed to save");
+    }
+}
+
+void Tamagotchi::load_from_card(save_data& save){
+
+    if (!sd_reader.begin(D6)) {
+        Serial.println("initialization failed!");
+        while (1);
+    }
+
+    o_file = sd_reader.open("tama.dat", FILE_READ);
+    if (o_file) {
+        o_file.read((uint8_t*)&save, sizeof(save_data));
+        o_file.close();
+        Serial.println("loading file");
+
+        species=                save.species;
+        age=                    save.age;
+        weight=                 save.weight;
+        hunger=                 save.hunger;
+        hp=                     save.hp;
+        mp=                     save.mp;
+        off=                    save.off;
+        def=                    save.def;
+        spd=                    save.spd;
+        brn=                    save.brn;
+        happy=                  save.happy;
+        disc=                   save.disc;
+        tired=                  save.tired;
+        cm=                     save.cm;
+        hunger_interval=        save.hunger_interval;
+        hunger_range=           save.hunger_range;
+        last_hunger=            save.last_hunger;
+        cm_hunger_interval=     save.cm_hunger_interval;
+        last_hunger_cm=         save.last_hunger_cm;
+        poop_interval=          save.poop_interval;
+        poop_range=             save.poop_range;
+        next_poop=              save.next_poop;
+        cm_poop_interval=       save.cm_poop_interval;
+        overfeed=               save.overfeed;
+        disc_range=             save.disc_range;
+
+    }
+    else {
+        Serial.println("failed to load, initialising a default digimon");
+        initialise(14);
+        //initialise(67);
+    }
+
 }
 
 void Tamagotchi::set_last_hunger(unsigned long value){
