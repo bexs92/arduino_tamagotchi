@@ -66,7 +66,7 @@ void Statemachine::set_up_read(){
     C.bttn = digitalRead(C.pin);
 }
 
-void Statemachine::check(unsigned long time){
+void Statemachine::check(unsigned long time,int sound_status){
 
 //------------------------------------------------------------------------------
 
@@ -79,11 +79,16 @@ void Statemachine::check(unsigned long time){
                     A.toggle=0;
                     if (in_menu==1){
                         page_count=(page_count+1)%A_max_count[menu_count];
-                        tone(sound_pin,C_mid);
+                        if(sound_status==1){
+                            tone(sound_pin,C_mid);
+                        }
+
                     }
                     else {
                         menu_count=(menu_count+1)%9;
-                        tone(sound_pin,major_scale[menu_count-1]);
+                        if(sound_status==1){
+                            tone(sound_pin,major_scale[menu_count-1]);
+                        }
                     }
                 }
                 else {
@@ -108,11 +113,14 @@ void Statemachine::check(unsigned long time){
                                 if(page_count!=2){
                                     training_count=training_count+1;
                                     in_action=1;
-                                    tone(sound_pin,G_mid);
+
+
                                 }
                                 else{
                                     in_action=1;
-                                    tone(sound_pin,G_mid);
+                                    if(sound_status==1){
+                                        tone(sound_pin,G_mid);
+                                    }
                                     if(time-time_store<1500){
                                         if(training_count==0){
                                             training_count=round(((((time-time_store)*100)/1500))/10)+1;
@@ -124,13 +132,17 @@ void Statemachine::check(unsigned long time){
 
                         else {
                             in_action=1;
-                            tone(sound_pin,G_mid);
+                            if(sound_status==1){
+                                tone(sound_pin,G_mid);
+                            }
                         }
 
                     }
                     else {
                         Serial.println("opening menu");
-                        tone(sound_pin,C_mid);
+                        if(sound_status==1){
+                            tone(sound_pin,C_mid);
+                        }
                         in_menu=1;
                         page_count=0;
                         if(menu_count==5){
@@ -153,7 +165,9 @@ void Statemachine::check(unsigned long time){
             if (C.diff>50){
                 if(C.toggle==1){
                     C.toggle=0;
-                    tone(sound_pin,125);
+                    if(sound_status==1){
+                        tone(sound_pin,125);
+                    }
                     menu_count=0;
                     page_count=0;
                     A.toggle=1;

@@ -235,7 +235,7 @@ void animation::retreiveFrame(int frame_number, unsigned long time_check,int nee
     if(sm.get_in_menu()==1){
         draw_menu(frame_number,time_check,sm.get_action(),need,lcd,data,sm,info);
         if(sm.get_menu_count()>0){
-            draw_side_menu(lcd,1,1);
+            draw_side_menu(lcd,data.sound_status,data.light_status);
         }
     }
 
@@ -268,12 +268,10 @@ void animation::retreiveFrame(int frame_number, unsigned long time_check,int nee
             }
 
         }
-        draw_side_menu(lcd,1,1);
+        draw_side_menu(lcd,data.sound_status,data.light_status);
     }
 
     draw_clock(game_H,game_M,lcd);
-
-    //draw_side_menu(lcd,1,1);
 
     lcd.display();
 }
@@ -320,7 +318,7 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
 
     if (menu_number==0){
         Serial.println("Middle menu button seleted");
-        select_side_menu(lcd,1,1,page_number);
+        select_side_menu(lcd,data.sound_status,data.light_status,page_number);
     }
 
     if (menu_number==1){

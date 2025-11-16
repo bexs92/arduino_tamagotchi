@@ -19,6 +19,8 @@ struct save_data {
     int disc;
     int tired;
     int cm; /*cm short for care mistakes */
+    int sound_status;
+    int light_status;
     unsigned long hunger_interval;
     unsigned long hunger_range;
     unsigned long last_hunger;
@@ -73,7 +75,8 @@ public:
     int disc;
     int tired;
     int cm; /*cm short for care mistakes */
-
+    int sound_status;
+    int light_status;
     save_data save_file;
     File o_file;
 

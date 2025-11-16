@@ -18,7 +18,7 @@ class Statemachine{
     public:
 
      Statemachine();
-     void check(unsigned long time);
+     void check(unsigned long time,int sound_status);
      void set_menu_count(int entered_num);
      void pin_mode();
      void set_up_read();

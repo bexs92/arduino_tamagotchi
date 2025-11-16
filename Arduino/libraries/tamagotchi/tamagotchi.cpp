@@ -21,7 +21,8 @@ Tamagotchi::Tamagotchi(){
     disc;
     tired;
     cm; /*cm short for care mistakes */
-
+    sound_status;
+    light_status;
     hunger_interval;
     hunger_range;
     last_hunger;
@@ -53,7 +54,8 @@ void Tamagotchi::initialise(int species_value){
     disc=88;
     tired=80;
     cm=0;
-
+    sound_status=1;
+    light_status=1;
     hunger_interval=minute(2);
     hunger_range=second(30);
     last_hunger=minute(1);
@@ -83,6 +85,8 @@ save_data Tamagotchi::create_save(){
         disc,
         tired,
         cm,
+        sound_status,
+        light_status,
         hunger_interval,
         hunger_range,
         last_hunger,
@@ -147,6 +151,8 @@ void Tamagotchi::load_from_card(save_data& save){
         disc=                   save.disc;
         tired=                  save.tired;
         cm=                     save.cm;
+        sound_status=           save.sound_status;
+        light_status=           save.light_status;
         hunger_interval=        save.hunger_interval;
         hunger_range=           save.hunger_range;
         last_hunger=            save.last_hunger;

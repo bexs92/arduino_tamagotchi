@@ -80,9 +80,11 @@ void setup() {
   Serial.begin(9600);
 
 //loading from card reader;
-  save_data empty = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  data.load_from_card(empty);
+  //save_data empty = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  //data.load_from_card(empty);
+  data.initialise(67);
   info.initialise(data.species);
+
 
   sm.pin_mode();
   
@@ -120,7 +122,7 @@ void loop() {
 
     sm.set_up_read();
 
-    sm.check(time);
+    sm.check(time,data.sound_status);
 
   //game time
     if(time-game_time_pt>=minute_interval){
@@ -210,13 +212,28 @@ void loop() {
           if (sm.get_menu_count()==0){
             if(sm.get_page_count()==0){
               Serial.println("Sound off");
+              if(data.sound_status==1){
+                data.sound_status=0;
+              }
+              else {
+                data.sound_status=1;
+              }
             }
             if(sm.get_page_count()==1){
               Serial.println("Light off");
+              if(data.light_status==1){
+                data.light_status=0;
+                analogWrite(led_pin,0);
+              }
+              else {
+                data.light_status=1;
+                analogWrite(led_pin,200);
+              }
             }
 
             if(sm.get_page_count()==2){
               Serial.println("Saving...");
+              
             }
             if(sm.get_page_count()==3){
               Serial.println("opening art");
