@@ -37,7 +37,7 @@ int tone_prev_time = 0;
 
 //--------------------------------------------------------------------------------------------
 
-const int A_max_count[8] = {8,2,6,0,0,2,0,2};
+const int A_max_count[9] = {4,8,2,6,0,0,2,0,2};
 
 //--------------------------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ void Statemachine::check(unsigned long time){
                 if(A.toggle==1){
                     A.toggle=0;
                     if (in_menu==1){
-                        page_count=(page_count+1)%A_max_count[menu_count-1];
+                        page_count=(page_count+1)%A_max_count[menu_count];
                         tone(sound_pin,C_mid);
                     }
                     else {

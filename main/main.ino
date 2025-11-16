@@ -207,6 +207,25 @@ void loop() {
           action_toggle=1;
           last_action=time;
 
+          if (sm.get_menu_count()==0){
+            if(sm.get_page_count()==0){
+              Serial.println("Sound off");
+            }
+            if(sm.get_page_count()==1){
+              Serial.println("Light off");
+            }
+
+            if(sm.get_page_count()==2){
+              Serial.println("Saving...");
+            }
+            if(sm.get_page_count()==3){
+              Serial.println("opening art");
+            }
+            else {
+            
+            }
+          }         
+
           if (sm.get_menu_count()==2){
             if(overfeed_counter<6){
               if(sm.get_page_count()==0){

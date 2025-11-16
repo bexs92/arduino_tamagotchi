@@ -65,6 +65,8 @@ extern const unsigned char menu_alert [] PROGMEM;
         void spd_anim(int frameNumber,Adafruit_PCD8544 lcd);
         void off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count,Adafruit_PCD8544 lcd);
         void rest_anim(int frameNumber,Adafruit_PCD8544 lcd);
+        void draw_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status);
+        void select_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status,int page_number);
 
     private:
         unsigned char* orderArray[34];

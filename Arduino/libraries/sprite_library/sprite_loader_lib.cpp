@@ -161,6 +161,27 @@ const unsigned char* disc_frames[3][3]={
     {sun,thinking,null_item}
 };
 
+const unsigned char* side_menu_sprites [4][2][2]={
+    {{SOUND_OFF,SOUND_ON},{INVERT_SOUND_OFF,INVERT_SOUND_ON}},
+    {{LIGHT_OFF,LIGHT_ON},{INVERT_LIGHT_OFF,INVERT_LIGHT_ON}},
+    {{SAVE_BTTN,SAVE_BTTN},{INVERT_SAVE_BTTN,INVERT_SAVE_BTTN}},
+    {{ART_BTTN,ART_BTTN},{INVERT_ART_BTTN,INVERT_ART_BTTN}}
+};
+
+const int selection_array[4][4]{
+    {1,0,0,0},
+    {0,1,0,0},
+    {0,0,1,0},
+    {0,0,0,1}
+};
+
+const int menu_locations[4][4]{
+    {74,2,9,9},
+    {74,13,9,9},
+    {52,24,15,10},
+    {68,24,15,10}
+};
+
 animation::animation(){
      };
 
@@ -210,8 +231,12 @@ void animation::initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* 
 void animation::retreiveFrame(int frame_number, unsigned long time_check,int need,int
                               poops,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info,int game_H,int game_M){
 
+    //draw_side_menu(lcd,1,1);
     if(sm.get_in_menu()==1){
         draw_menu(frame_number,time_check,sm.get_action(),need,lcd,data,sm,info);
+        if(sm.get_menu_count()>0){
+            draw_side_menu(lcd,1,1);
+        }
     }
 
     else{
@@ -243,9 +268,12 @@ void animation::retreiveFrame(int frame_number, unsigned long time_check,int nee
             }
 
         }
+        draw_side_menu(lcd,1,1);
     }
 
     draw_clock(game_H,game_M,lcd);
+
+    //draw_side_menu(lcd,1,1);
 
     lcd.display();
 }
@@ -291,7 +319,8 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     lcd.setCursor(4,16);
 
     if (menu_number==0){
-        Serial.println("Nothing selected");
+        Serial.println("Middle menu button seleted");
+        select_side_menu(lcd,1,1,page_number);
     }
 
     if (menu_number==1){
@@ -1153,5 +1182,38 @@ void animation::rest_anim(int frameNumber,Adafruit_PCD8544 lcd) {
     else{
         lcd.drawBitmap(16,16,sleep_z_2,11,10,WHITE);
     }
+
+}
+
+void animation::draw_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status){
+
+    const unsigned char* selected_sprites[4]={
+        side_menu_sprites[0][0][sound_status],side_menu_sprites[1][0][light_status],SAVE_BTTN,ART_BTTN
+    };
+
+    for (int i=0; i<4; i++) {
+        lcd.drawBitmap(menu_locations[i][0],menu_locations[i][1],selected_sprites[i],menu_locations[i][2],menu_locations[i][3],BLACK);
+    }
+
+}
+
+void animation::select_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status,int page_number){
+
+    const unsigned char* selected_sprites[4]={
+        side_menu_sprites[0][selection_array[page_number][0]][sound_status],
+        side_menu_sprites[1][selection_array[page_number][1]][light_status],
+        side_menu_sprites[2][selection_array[page_number][2]][0],
+        side_menu_sprites[3][selection_array[page_number][3]][0]
+    };
+
+    for (int i=0; i<4; i++) {
+        lcd.drawBitmap(menu_locations[i][0],
+                       menu_locations[i][1],
+                       selected_sprites[i],
+                       menu_locations[i][2],
+                       menu_locations[i][3],
+                       BLACK);
+    }
+
 
 }
