@@ -21,17 +21,17 @@ struct save_data {
     int cm; /*cm short for care mistakes */
     int sound_status;
     int light_status;
-    unsigned long hunger_interval;
-    unsigned long hunger_range;
-    unsigned long last_hunger;
-    unsigned long cm_hunger_interval;
-    unsigned long last_hunger_cm;
-    unsigned long poop_interval;
-    unsigned long poop_range;
-    unsigned long next_poop;
-    unsigned long cm_poop_interval;
-    unsigned long disc_range;
-    unsigned long overfeed;
+    // unsigned long hunger_interval;
+    // unsigned long hunger_range;
+    // unsigned long last_hunger;
+    // unsigned long cm_hunger_interval;
+    // unsigned long last_hunger_cm;
+    // unsigned long poop_interval;
+    // unsigned long poop_range;
+    // unsigned long next_poop;
+    // unsigned long cm_poop_interval;
+    // unsigned long disc_range;
+    // unsigned long overfeed;
 };
 
 
@@ -41,9 +41,11 @@ public:
 
     Tamagotchi();
     void initialise(int species_value);
+    void transfer(save_data transfer);
     save_data create_save();
     void save_to_card(save_data& save);
     void load_from_card(save_data& save);
+    void delete_file();
     void set_last_hunger(unsigned long value);
     unsigned long get_last_hunger();
     unsigned long generate_next(unsigned long old_time,int min, int max);
@@ -79,6 +81,7 @@ public:
     int light_status;
     save_data save_file;
     File o_file;
+    File w_file;
 
 private:
 

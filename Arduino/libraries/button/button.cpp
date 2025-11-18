@@ -79,6 +79,7 @@ void Statemachine::check(unsigned long time,int sound_status){
                     A.toggle=0;
                     if (in_menu==1){
                         page_count=(page_count+1)%A_max_count[menu_count];
+                        Serial.println("A - got here");
                         if(sound_status==1){
                             tone(sound_pin,C_mid);
                         }
@@ -113,7 +114,6 @@ void Statemachine::check(unsigned long time,int sound_status){
                                 if(page_count!=2){
                                     training_count=training_count+1;
                                     in_action=1;
-
 
                                 }
                                 else{

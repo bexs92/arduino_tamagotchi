@@ -80,16 +80,52 @@ void setup() {
   Serial.begin(9600);
 
 //loading from card reader;
-  //save_data empty = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  //data.load_from_card(empty);
-  data.initialise(67);
+  //save_data empty = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  //delay(3000);
+  
+  save_data empty ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  data.load_from_card(empty);
+  data.transfer(empty);
+
+//
+
+  //data.initialise(67);
   info.initialise(data.species);
 
+  //data.delete_file();
+
+//  data.hunger=3;
+//  data.weight=13;
+//  data.light_status=0;
+
+//  save_data blah = data.create_save();
+//  data.save_to_card(blah);
+
+  //save_data empty = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  //save_data empty = data.create_save();
+  //data.save_to_card(empty);
+  
+//Serial.println(empty.species);
+//Serial.println(empty.age);
+//Serial.println(empty.weight);
+//Serial.println(empty.hunger);
+//Serial.println(empty.hp);
+//Serial.println(empty.mp);
+//Serial.println(empty.off);
+//Serial.println(empty.def);
+//Serial.println(empty.spd);
+//Serial.println(empty.brn);
+//Serial.println(empty.happy);
+//Serial.println(empty.disc);
+//Serial.println(empty.tired);
+//Serial.println(empty.cm);
+//Serial.println(empty.sound_status);
+//Serial.println(empty.light_status);
 
   sm.pin_mode();
   
   pinMode(led_pin,OUTPUT);
-  analogWrite(led_pin,200);
+  analogWrite(led_pin,data.light_status*200);
   
   new_lcd.begin();
   new_lcd.setContrast(72);
@@ -202,9 +238,11 @@ void loop() {
   
   //checking for button pushes
   if (action_toggle!=sm.get_action()){
+    Serial.println("In the action toggle");
       if(sm.get_action()==1){
           //do the action and change the data stats
           frameNumber=0;
+          Serial.println("In action");
           
           action_toggle=1;
           last_action=time;
@@ -233,7 +271,9 @@ void loop() {
 
             if(sm.get_page_count()==2){
               Serial.println("Saving...");
-              
+              save_data save_temp = data.create_save();
+              data.save_to_card(save_temp);
+              delay(3000);
             }
             if(sm.get_page_count()==3){
               Serial.println("opening art");

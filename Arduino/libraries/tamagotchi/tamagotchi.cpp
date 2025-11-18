@@ -36,7 +36,39 @@ Tamagotchi::Tamagotchi(){
     disc_range;
     save_file;
     o_file;
+    w_file;
 }
+
+void Tamagotchi::transfer(save_data transfer){
+    species= transfer.species;
+    age= transfer.age;
+    weight= transfer.weight;
+    hunger=transfer.hunger;
+    hp=transfer.hp;
+    mp=transfer.mp;
+    off=transfer.off;
+    def=transfer.def;
+    spd=transfer.spd;
+    brn=transfer.brn;
+    happy=transfer.happy;
+    disc=transfer.disc;
+    tired=transfer.tired;
+    cm=transfer.cm;
+    sound_status=transfer.sound_status;
+    light_status=transfer.light_status;
+    hunger_interval=minute(2);
+    hunger_range=second(30);
+    last_hunger=minute(1);
+    cm_hunger_interval = minute(1);
+    last_hunger_cm=last_hunger+cm_hunger_interval;
+    poop_interval=second(30);
+    poop_range=second(20);
+    next_poop=minute(12);
+    cm_poop_interval =second(30);
+    overfeed=0;
+    disc_range=0;
+}
+
 
 void Tamagotchi::initialise(int species_value){
 
@@ -87,17 +119,17 @@ save_data Tamagotchi::create_save(){
         cm,
         sound_status,
         light_status,
-        hunger_interval,
-        hunger_range,
-        last_hunger,
-        cm_hunger_interval,
-        last_hunger_cm,
-        poop_interval,
-        poop_range,
-        next_poop,
-        cm_poop_interval,
-        overfeed,
-        disc_range
+        // hunger_interval,
+        // hunger_range,
+        // last_hunger,
+        // cm_hunger_interval,
+        // last_hunger_cm,
+        // poop_interval,
+        // poop_range,
+        // next_poop,
+        // cm_poop_interval,
+        // overfeed,
+        // disc_range
     };
 
     return save_file;
@@ -110,21 +142,29 @@ void Tamagotchi::save_to_card(save_data& save){
         while (1);
     }
 
-    o_file = sd_reader.open("tama.dat", FILE_WRITE);
+    sd_reader.remove("tama.dat");
 
-    if (o_file) {
-        sd_reader.remove("tama.dat");
-        o_file.write((uint8_t*)&save,sizeof(save_data));
-        o_file.close();
+    w_file = sd_reader.open("tama.dat", FILE_WRITE);
+
+    //sd_reader.remove("tama.dat");
+
+    if (w_file) {
+        //sd_reader.remove("tama.dat");
+        w_file.write((uint8_t*)&save,sizeof(save_data));
+        w_file.flush();
+        w_file.close();
         Serial.println("got here");
         Serial.println("saving file");
+        delay(300);
     }
     else {
         Serial.println("failed to save");
     }
+    sd_reader.end();
 }
 
 void Tamagotchi::load_from_card(save_data& save){
+    Serial.println("loading file");
 
     if (!sd_reader.begin(D6)) {
         Serial.println("initialization failed!");
@@ -134,44 +174,70 @@ void Tamagotchi::load_from_card(save_data& save){
     o_file = sd_reader.open("tama.dat", FILE_READ);
     if (o_file) {
         o_file.read((uint8_t*)&save, sizeof(save_data));
-        o_file.close();
         Serial.println("loading file");
 
-        species=                save.species;
-        age=                    save.age;
-        weight=                 save.weight;
-        hunger=                 save.hunger;
-        hp=                     save.hp;
-        mp=                     save.mp;
-        off=                    save.off;
-        def=                    save.def;
-        spd=                    save.spd;
-        brn=                    save.brn;
-        happy=                  save.happy;
-        disc=                   save.disc;
-        tired=                  save.tired;
-        cm=                     save.cm;
-        sound_status=           save.sound_status;
-        light_status=           save.light_status;
-        hunger_interval=        save.hunger_interval;
-        hunger_range=           save.hunger_range;
-        last_hunger=            save.last_hunger;
-        cm_hunger_interval=     save.cm_hunger_interval;
-        last_hunger_cm=         save.last_hunger_cm;
-        poop_interval=          save.poop_interval;
-        poop_range=             save.poop_range;
-        next_poop=              save.next_poop;
-        cm_poop_interval=       save.cm_poop_interval;
-        overfeed=               save.overfeed;
-        disc_range=             save.disc_range;
 
+
+
+        // species=                save.species;
+        // age=                    save.age;
+        // weight=                 save.weight;
+        // hunger=                 save.hunger;
+        // hp=                     save.hp;
+        // mp=                     save.mp;
+        // off=                    save.off;
+        // def=                    save.def;
+        // spd=                    save.spd;
+        // brn=                    save.brn;
+        // happy=                  save.happy;
+        // disc=                   save.disc;
+        // tired=                  save.tired;
+        // cm=                     save.cm;
+        // sound_status=           save.sound_status;
+        // light_status=           save.light_status;
+        // // hunger_interval=        save.hunger_interval;
+        // // hunger_range=           save.hunger_range;
+        // // last_hunger=            save.last_hunger;
+        // // cm_hunger_interval=     save.cm_hunger_interval;
+        // // last_hunger_cm=         save.last_hunger_cm;
+        // // poop_interval=          save.poop_interval;
+        // // poop_range=             save.poop_range;
+        // // next_poop=              save.next_poop;
+        // // cm_poop_interval=       save.cm_poop_interval;
+        // // overfeed=               save.overfeed;
+        // // disc_range=             save.disc_range;
+        // hunger_interval=minute(2);
+        // hunger_range=second(30);
+        // last_hunger=minute(1);
+        // cm_hunger_interval = minute(1);
+        // last_hunger_cm=last_hunger+cm_hunger_interval;
+        // poop_interval=second(30);
+        // poop_range=second(20);
+        // next_poop=minute(12);
+        // cm_poop_interval =second(30);
+        // overfeed=0;
+        // disc_range=0;
+
+        o_file.close();
     }
     else {
         Serial.println("failed to load, initialising a default digimon");
         initialise(14);
         //initialise(67);
+        //o_file.close();
+    }
+    sd_reader.end();
+
+}
+
+void Tamagotchi::delete_file(){
+    if (!sd_reader.begin(D6)) {
+        Serial.println("initialization failed!");
+        while (1);
     }
 
+    sd_reader.remove("tama.dat");
+    sd_reader.end();
 }
 
 void Tamagotchi::set_last_hunger(unsigned long value){
