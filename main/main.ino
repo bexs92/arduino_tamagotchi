@@ -3,8 +3,6 @@
 #include <SPI.h>
 #include <SdFat.h>
 #include <sprite_loader_lib.h>
-//#include <EEPROM.h>
-//#include <FlashStorage.h>
 #include <button.h>
 #include <tamagotchi.h>
 #include <Arduino.h>
@@ -80,47 +78,11 @@ void setup() {
   Serial.begin(9600);
 
 //loading from card reader;
-  //save_data empty = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  //delay(3000);
-  
   save_data empty ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   data.load_from_card(empty);
   data.transfer(empty);
 
-//
-
-  //data.initialise(67);
   info.initialise(data.species);
-
-  //data.delete_file();
-
-//  data.hunger=3;
-//  data.weight=13;
-//  data.light_status=0;
-
-//  save_data blah = data.create_save();
-//  data.save_to_card(blah);
-
-  //save_data empty = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  //save_data empty = data.create_save();
-  //data.save_to_card(empty);
-  
-//Serial.println(empty.species);
-//Serial.println(empty.age);
-//Serial.println(empty.weight);
-//Serial.println(empty.hunger);
-//Serial.println(empty.hp);
-//Serial.println(empty.mp);
-//Serial.println(empty.off);
-//Serial.println(empty.def);
-//Serial.println(empty.spd);
-//Serial.println(empty.brn);
-//Serial.println(empty.happy);
-//Serial.println(empty.disc);
-//Serial.println(empty.tired);
-//Serial.println(empty.cm);
-//Serial.println(empty.sound_status);
-//Serial.println(empty.light_status);
 
   sm.pin_mode();
   
@@ -136,11 +98,6 @@ void setup() {
   new_lcd.setTextColor(BLACK);
 
   digimon = info.get_file_name();
-  
-  Serial.println(data.species);
-  Serial.println(info.get_file_name());
-  Serial.println(info.get_name());
-  Serial.println(digimon);
 
   loadCharacter(digimon); 
 

@@ -21,17 +21,7 @@ struct save_data {
     int cm; /*cm short for care mistakes */
     int sound_status;
     int light_status;
-    // unsigned long hunger_interval;
-    // unsigned long hunger_range;
-    // unsigned long last_hunger;
-    // unsigned long cm_hunger_interval;
-    // unsigned long last_hunger_cm;
-    // unsigned long poop_interval;
-    // unsigned long poop_range;
-    // unsigned long next_poop;
-    // unsigned long cm_poop_interval;
-    // unsigned long disc_range;
-    // unsigned long overfeed;
+    //BEXS todo I need to save the next hunger next cm etc as well as the time
 };
 
 

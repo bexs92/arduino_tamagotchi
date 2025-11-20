@@ -45,7 +45,6 @@ Statemachine::Statemachine(){
     menu_count=0;
     page_count=0;
     in_menu=0;
-    //transferring from older board - a=10,b=9,c=8
     A=(Button){A1,0,1,0,0};
     B=(Button){A2,0,1,0,0};
     C=(Button){A3,0,1,0,0};

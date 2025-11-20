@@ -541,10 +541,6 @@ void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,
         }
 
     }
-
-
-    //lcd.display();
-
 }
 
 void animation::food_page(int page_number,int frameNumber,unsigned long time,int action,Adafruit_PCD8544 lcd,Tamagotchi data){
@@ -590,12 +586,9 @@ void animation::food_page(int page_number,int frameNumber,unsigned long time,int
 
     }
 
-    //lcd.display();
 }
 
 void animation::training_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm){
-
-    //Serial.println(page_number);
 
     if(page_number<6){
 
@@ -640,17 +633,12 @@ void animation::training_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi d
         lcd.setCursor(4,18);
         lcd.println(current_stat[page_number-6]-(sm.get_training()*5));
 
-        //char buffer_1[30];
-
-        //sprintf(buffer_1, "+ %d",sm.get_training()*5);
         lcd.setCursor(4,28);
         lcd.println("+");
         lcd.setCursor(8,28);
         lcd.println(sm.get_training()*5);
 
     }
-
-    //lcd.display();
 
 }
 
@@ -681,7 +669,6 @@ void animation::light_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data
 
     }
 
-    //lcd.display();
 }
 
 void animation::disc_page(int page_number,int frame_number,int action, Adafruit_PCD8544 lcd,Tamagotchi data){
@@ -715,15 +702,12 @@ void animation::disc_page(int page_number,int frame_number,int action, Adafruit_
 
         }
 
-        //lcd.display();
-
     }
 
     if(action==1){
         disc_anim(frame_number,lcd,page_number);
     }
 
-    //lcd.display();
 }
 
 const unsigned char* meat_frames[4][2]={
@@ -740,31 +724,26 @@ void animation::eating_anim(int frameNumber,unsigned long time,Adafruit_PCD8544 
 
     if (frameNumber%6==0){
         lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-        //lcd.drawBitmap(4,16,menu_food,11,10,BLACK);
         lcd.drawBitmap(4,16,meat_frames[0][meat],11,10,BLACK);
     }
 
     if (frameNumber%6==1){
         lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-        //lcd.drawBitmap(4,21,menu_food,11,10,BLACK);
         lcd.drawBitmap(4,21,meat_frames[0][meat],11,10,BLACK);
     }
 
     if (frameNumber%6==2){
         lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
-        //lcd.drawBitmap(4,21,food_half,11,10,BLACK);
         lcd.drawBitmap(4,21,meat_frames[1][meat],11,10,BLACK);
     }
 
     if (frameNumber%6==3){
         lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-        //lcd.drawBitmap(4,21,food_third,11,10,BLACK);
         lcd.drawBitmap(4,21,meat_frames[2][meat],11,10,BLACK);
     }
 
     if (frameNumber%6==4){
         lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
-        //lcd.drawBitmap(4,21,food_empty,11,10,BLACK);
         if(meat==1){
             lcd.drawBitmap(4,21,food_empty,11,10,BLACK);
         }
@@ -843,11 +822,8 @@ void animation::toilet_anim(int frameNumber,Adafruit_PCD8544 lcd) {
 
     if (frameNumber%14==13){
         disc_anim(frameNumber,lcd,0);
-        //pooping_toggle=0;
     }
     pooping_toggle=0;
-
-    //lcd.display();
 }
 
 void animation::clean_anim(int frameNumber,int poops,Adafruit_PCD8544 lcd){
@@ -856,8 +832,6 @@ void animation::clean_anim(int frameNumber,int poops,Adafruit_PCD8544 lcd){
     if(poops>0){
         c_h_dist=c_h_dist-((minus_poop[poops])*5);
     }
-
-    //c_h_dist=48-c_h_dist;
 
     if (frameNumber%4==0){
         lcd.drawBitmap(16,16,clear,6,17,BLACK);
