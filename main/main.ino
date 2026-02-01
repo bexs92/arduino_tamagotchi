@@ -79,8 +79,11 @@ void setup() {
 
 //loading from card reader;
   save_data empty ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  
   data.load_from_card(empty);
   data.transfer(empty);
+
+  //data.initialise(21); 
 
   info.initialise(data.species);
 

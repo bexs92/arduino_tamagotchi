@@ -2,6 +2,7 @@
 #include "sprite_loader_lib.h"
 #include "Arduino.h"
 #include <SdFat.h>
+#include <vector>
 #include <Adafruit_PCD8544.h>
 #include <sprites.h>
 #include <button.h>
@@ -9,6 +10,40 @@
 #include "clock.h"
 #include "encyclopedia.h"
 #include <tamagotchi.h>
+
+anim_object::anim_object(Adafruit_PCD8544& display)
+: lcd(display) {
+    sprite_list;
+};
+
+void anim_object::add_frame(int frame_number,transform sprite_transform) {
+
+    sprite_list[frame_number] = sprite_transform;
+};
+
+
+void anim_object::copy_frame(int copy_frame,int frame_number) {
+    sprite_list[frame_number] = sprite_list[copy_frame];
+};
+
+void anim_object::create_frame(int frame_number,int pos_x, int pos_y,sprite image) {
+    transform new_frame = {image,pos_x,pos_y};
+
+    add_frame(frame_number,new_frame);
+}
+
+void anim_object::play(int frame_number) {
+
+    int current_frame = frame_number%sprite_list.size();
+
+    // sc short for sprite container
+    transform sc = sprite_list[current_frame];
+
+    lcd.drawBitmap(sc.pos_x,sc.pos_y,sc.sprite_image.image,sc.sprite_image.size_x,sc.sprite_image.size_y,BLACK);
+
+}
+
+//------------------------------------------------------
 
 uint8_t walk_L[SPRITE_SIZE];
 uint8_t walk_R[SPRITE_SIZE];
@@ -722,36 +757,69 @@ void animation::eating_anim(int frameNumber,unsigned long time,Adafruit_PCD8544 
     lcd.clearDisplay();
     lcd.drawRect(0,0,50,48,BLACK);
 
-    if (frameNumber%6==0){
-        lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-        lcd.drawBitmap(4,16,meat_frames[0][meat],11,10,BLACK);
-    }
+    //---------------------------------------------------------------------------------------
 
-    if (frameNumber%6==1){
-        lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-        lcd.drawBitmap(4,21,meat_frames[0][meat],11,10,BLACK);
-    }
+    sprite crouch_L_1 = {crouch_L,16,16};
+    sprite roar_L_1 = {roar_L,16,16};
 
-    if (frameNumber%6==2){
-        lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
-        lcd.drawBitmap(4,21,meat_frames[1][meat],11,10,BLACK);
-    }
+    anim_object creature = anim_object(lcd);
 
-    if (frameNumber%6==3){
-        lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-        lcd.drawBitmap(4,21,meat_frames[2][meat],11,10,BLACK);
-    }
+    creature.create_frame(0,16,16,crouch_L_1);
+    creature.copy_frame(0,1);
+    creature.create_frame(2,16,16,roar_L_1);
+    creature.copy_frame(0,3);
+    creature.copy_frame(2,4);
+    creature.copy_frame(0,5);
 
-    if (frameNumber%6==4){
-        lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
-        if(meat==1){
-            lcd.drawBitmap(4,21,food_empty,11,10,BLACK);
-        }
-    }
 
-    if (frameNumber%6==5){
-        lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-    }
+    sprite meat_1 = {sml_meat,11,10};
+    sprite meat_2 = {sml_meat_half,11,10};
+    sprite meat_3 = {sml_meat_empty,11,10};
+
+    anim_object meat_o = anim_object(lcd);
+
+    meat_o.create_frame(0,4,16,meat_1);
+    meat_o.create_frame(1,4,21,meat_1);
+    meat_o.create_frame(2,4,21,meat_2);
+    meat_o.create_frame(3,4,21,meat_3);
+    meat_o.copy_frame(4,5);
+    meat_o.copy_frame(5,6);
+
+    creature.play(frameNumber);
+    meat_o.play(frameNumber);
+
+    //---------------------------------------------------------------------------------------
+
+    // if (frameNumber%6==0){
+    //     lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
+    //     lcd.drawBitmap(4,16,meat_frames[0][meat],11,10,BLACK);
+    // }
+    //
+    // if (frameNumber%6==1){
+    //     lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
+    //     lcd.drawBitmap(4,21,meat_frames[0][meat],11,10,BLACK);
+    // }
+    //
+    // if (frameNumber%6==2){
+    //     lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
+    //     lcd.drawBitmap(4,21,meat_frames[1][meat],11,10,BLACK);
+    // }
+    //
+    // if (frameNumber%6==3){
+    //     lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
+    //     lcd.drawBitmap(4,21,meat_frames[2][meat],11,10,BLACK);
+    // }
+    //
+    // if (frameNumber%6==4){
+    //     lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
+    //     if(meat==1){
+    //         lcd.drawBitmap(4,21,food_empty,11,10,BLACK);
+    //     }
+    // }
+    //
+    // if (frameNumber%6==5){
+    //     lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
+    // }
 
 }
 
@@ -1189,3 +1257,6 @@ void animation::select_side_menu(Adafruit_PCD8544 lcd,int sound_status, int ligh
 
 
 }
+
+
+
