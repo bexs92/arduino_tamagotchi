@@ -35,10 +35,13 @@ class anim_object {
 
 public:
     std::unordered_map<int,transform> sprite_list;
+    std::vector<int> frame_list;
     anim_object(Adafruit_PCD8544& display);
     void add_frame(int frame_number,transform sprite_transform);
     void copy_frame(int copy_frame,int frame_number);
     void create_frame(int frame_number,int pos_x, int pos_y,sprite image);
+    void generate_order_from_frames();
+    void manually_create_order(std::vector<int> frames);
     void play(int frame_number);
 
 private:

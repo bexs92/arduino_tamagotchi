@@ -14,6 +14,7 @@
 anim_object::anim_object(Adafruit_PCD8544& display)
 : lcd(display) {
     sprite_list;
+    frame_list;
 };
 
 void anim_object::add_frame(int frame_number,transform sprite_transform) {
@@ -32,12 +33,24 @@ void anim_object::create_frame(int frame_number,int pos_x, int pos_y,sprite imag
     add_frame(frame_number,new_frame);
 }
 
+void anim_object::generate_order_from_frames(){
+    for (int i = 0; i < sprite_list.size(); i++) {
+        frame_list[i]=i;
+    }
+}
+
+void anim_object::manually_create_order(std::vector<int>frames){
+    frame_list = frames;
+}
+
 void anim_object::play(int frame_number) {
 
-    int current_frame = frame_number%sprite_list.size();
+    int current_frame = frame_number%frame_list.size();
+
+    int current_sprite_number = frame_list[current_frame];
 
     // sc short for sprite container
-    transform sc = sprite_list[current_frame];
+    transform sc = sprite_list[current_sprite_number];
 
     lcd.drawBitmap(sc.pos_x,sc.pos_y,sc.sprite_image.image,sc.sprite_image.size_x,sc.sprite_image.size_y,BLACK);
 
@@ -765,12 +778,9 @@ void animation::eating_anim(int frameNumber,unsigned long time,Adafruit_PCD8544 
     anim_object creature = anim_object(lcd);
 
     creature.create_frame(0,16,16,crouch_L_1);
-    creature.copy_frame(0,1);
-    creature.create_frame(2,16,16,roar_L_1);
-    creature.copy_frame(0,3);
-    creature.copy_frame(2,4);
-    creature.copy_frame(0,5);
+    creature.create_frame(1,16,16,roar_L_1);
 
+    creature.frame_list = {0,0,1,0,1,0};
 
     sprite meat_1 = {sml_meat,11,10};
     sprite meat_2 = {sml_meat_half,11,10};
@@ -782,8 +792,10 @@ void animation::eating_anim(int frameNumber,unsigned long time,Adafruit_PCD8544 
     meat_o.create_frame(1,4,21,meat_1);
     meat_o.create_frame(2,4,21,meat_2);
     meat_o.create_frame(3,4,21,meat_3);
-    meat_o.copy_frame(4,5);
-    meat_o.copy_frame(5,6);
+    //meat_o.copy_frame(4,5);
+    //meat_o.copy_frame(5,6);
+
+    meat_o.frame_list = {0,1,2,3,3,3};
 
     creature.play(frameNumber);
     meat_o.play(frameNumber);
