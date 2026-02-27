@@ -3,6 +3,7 @@
 #include "Arduino.h"
 #include <SdFat.h>
 #include <vector>
+#include <array>
 #include <Adafruit_PCD8544.h>
 #include <sprites.h>
 #include <button.h>
@@ -11,50 +12,143 @@
 #include "encyclopedia.h"
 #include <tamagotchi.h>
 
-anim_object::anim_object(Adafruit_PCD8544& display)
-: lcd(display) {
-    sprite_list;
-    frame_list;
-};
-
-void anim_object::add_frame(int frame_number,transform sprite_transform) {
-
-    sprite_list[frame_number] = sprite_transform;
-};
-
-
-void anim_object::copy_frame(int copy_frame,int frame_number) {
-    sprite_list[frame_number] = sprite_list[copy_frame];
-};
-
-void anim_object::create_frame(int frame_number,int pos_x, int pos_y,sprite image) {
-    transform new_frame = {image,pos_x,pos_y};
-
-    add_frame(frame_number,new_frame);
+sprite_sheet::sprite_sheet() {
+    sprite_sheet_uo;
 }
 
-void anim_object::generate_order_from_frames(){
-    for (int i = 0; i < sprite_list.size(); i++) {
-        frame_list[i]=i;
+void sprite_sheet::add_sprite(const unsigned char* image, int size_x, int size_y) {
+    //The numbers start at 0
+    int list_size = sprite_sheet_uo.size();
+    sprite new_sprite = {image,size_x,size_y};
+    sprite_sheet_uo[list_size]=new_sprite;
+}
+
+sprite sprite_sheet::return_sprite(int number) {
+    return sprite_sheet_uo[number];
+};
+
+//------------------------------------------------------
+
+anim_sequence::anim_sequence(int seq_len)
+: len(seq_len) {
+    sprite_keyframes;
+    transform_keyframes;
+};
+
+void anim_sequence::add_sprite_keyframe(int frame_number,int sprite_number) {
+    sprite_keyframes[frame_number] = sprite_number;
+};
+
+void anim_sequence::add_transform_keyframe(int frame_number,int coord_x, int coord_y) {
+    co_ordinate temp_coord = {coord_x,coord_y};
+    transform_keyframes[frame_number] = temp_coord;
+};
+
+int anim_sequence::return_current_sprite(int frame_number,int total_seq_len) {
+
+    int current_frame;
+
+    if (playback_number>1){
+        current_frame = frame_number%len;
     }
+
+    else {
+        current_frame = frame_number%total_seq_len;
+    }
+
+    int current_sprite;
+
+    if (sprite_keyframes.count(current_frame)){
+        sprite_index = current_frame;
+        current_sprite = sprite_keyframes[current_frame];
+    }
+    else {
+        current_sprite = sprite_keyframes[sprite_index];
+    }
+
+    return current_sprite;
+};
+
+co_ordinate anim_sequence::return_current_coord(int frame_number,int total_seq_len){
+
+    int current_frame;
+
+    if (playback_number>1){
+        current_frame = frame_number%len;
+    }
+
+    else {
+        current_frame = frame_number%total_seq_len;
+    }
+
+    co_ordinate current_transform;
+
+    if (transform_keyframes.count(current_frame)){
+        transform_index = current_frame;
+        current_transform = transform_keyframes[current_frame];
+    }
+    else {
+        current_transform = transform_keyframes[transform_index];
+    }
+
+    return current_transform;
+};
+
+void anim_sequence::make_loop(int number_of_loops) {
+    playback_number=playback_number*number_of_loops;
+};
+
+int anim_sequence::get_seq_size() {
+    return len;
+};
+
+//------------------------------------------------------
+//------------------------------------------------------
+
+
+compilation::compilation(int time_len)
+: tl_len(time_len) {
+    sequences;
 }
 
-void anim_object::manually_create_order(std::vector<int>frames){
-    frame_list = frames;
-}
+void compilation::add_sequence(anim_sequence& added_seq) {
 
-void anim_object::play(int frame_number) {
+    int temp_number;
 
-    int current_frame = frame_number%frame_list.size();
+    if (sequences.size()>0){
+        temp_number = last_frame_number;
+        last_frame_number = (added_seq.get_seq_size()*added_seq.playback_number)+last_frame_number;
+    }
+    else {
+        temp_number = 0;
+        last_frame_number = added_seq.get_seq_size()*added_seq.playback_number;
+    };
 
-    int current_sprite_number = frame_list[current_frame];
+    sequences[temp_number]=&added_seq;
+};
 
-    // sc short for sprite container
-    transform sc = sprite_list[current_sprite_number];
+void compilation::play(int frame_number, Adafruit_PCD8544& lcd, sprite_sheet& ss) {
 
-    lcd.drawBitmap(sc.pos_x,sc.pos_y,sc.sprite_image.image,sc.sprite_image.size_x,sc.sprite_image.size_y,BLACK);
+    int current_frame = frame_number%tl_len;
 
-}
+    anim_sequence* current_seq;
+
+    if (sequences.count(current_frame)){
+        seq_index = current_frame;
+        current_seq = sequences[current_frame];
+    }
+    else {
+
+        current_seq = sequences[seq_index];
+    };
+
+    co_ordinate current_transform = current_seq->return_current_coord(current_frame,tl_len);
+    sprite current_sprite = ss.return_sprite(current_seq->return_current_sprite(current_frame,tl_len));
+
+    lcd.drawBitmap(current_transform.pos_x,current_transform.pos_y,current_sprite.image,current_sprite.size_x,current_sprite.size_y,BLACK);
+
+};
+
 
 //------------------------------------------------------
 
@@ -231,7 +325,35 @@ const int menu_locations[4][4]{
 };
 
 animation::animation(){
-     };
+    meat_sprites;
+    eating_seq;
+    test_comp;
+};
+
+void animation::make_sequences(){
+
+    meat_sprites.add_sprite(sml_meat,11,10);
+    meat_sprites.add_sprite(sml_meat_half,11,10);
+    meat_sprites.add_sprite(sml_meat_empty,11,10);
+
+    meat_sprites.add_sprite(full_heart,11,10);
+    meat_sprites.add_sprite(empty_heart,11,10);
+
+    test_seq.make_loop(3);
+
+    eating_seq.sprite_keyframes={{0,0},{2,1}};
+    test_seq.sprite_keyframes={{0,3},{1,4}};
+
+
+    eating_seq.add_transform_keyframe(0,4,16);
+    eating_seq.add_transform_keyframe(1,4,21);
+
+    test_seq.add_transform_keyframe(3,16,20);
+    test_seq.add_transform_keyframe(4,18,16);
+
+    test_comp.add_sequence(eating_seq);
+    test_comp.add_sequence(test_seq);
+}
 
 void animation::initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* r_L,unsigned char* n_R,unsigned char* c_R,unsigned char* r_R) {
 
@@ -772,33 +894,9 @@ void animation::eating_anim(int frameNumber,unsigned long time,Adafruit_PCD8544 
 
     //---------------------------------------------------------------------------------------
 
-    sprite crouch_L_1 = {crouch_L,16,16};
-    sprite roar_L_1 = {roar_L,16,16};
+    test_comp.play(frameNumber,lcd,meat_sprites);
 
-    anim_object creature = anim_object(lcd);
-
-    creature.create_frame(0,16,16,crouch_L_1);
-    creature.create_frame(1,16,16,roar_L_1);
-
-    creature.frame_list = {0,0,1,0,1,0};
-
-    sprite meat_1 = {sml_meat,11,10};
-    sprite meat_2 = {sml_meat_half,11,10};
-    sprite meat_3 = {sml_meat_empty,11,10};
-
-    anim_object meat_o = anim_object(lcd);
-
-    meat_o.create_frame(0,4,16,meat_1);
-    meat_o.create_frame(1,4,21,meat_1);
-    meat_o.create_frame(2,4,21,meat_2);
-    meat_o.create_frame(3,4,21,meat_3);
-    //meat_o.copy_frame(4,5);
-    //meat_o.copy_frame(5,6);
-
-    meat_o.frame_list = {0,1,2,3,3,3};
-
-    creature.play(frameNumber);
-    meat_o.play(frameNumber);
+    //---------------------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------------------
 

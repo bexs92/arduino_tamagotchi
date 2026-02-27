@@ -6,6 +6,7 @@
 #include "Arduino.h"
 #include <SdFat.h>
 #include <vector>
+#include <array>
 #include <unordered_map>
 #include <Adafruit_PCD8544.h>
 #include <sprites.h>
@@ -25,28 +26,65 @@ struct sprite {
     int size_y;
 };
 
-struct transform {
-    sprite sprite_image;
+struct co_ordinate {
     int pos_x;
     int pos_y;
 };
 
-class anim_object {
+class sprite_sheet {
+    //stores images in a map
+public:
+    std::unordered_map<int,sprite> sprite_sheet_uo;
+    sprite_sheet();
+    void add_sprite(const unsigned char* image,int size_x, int size_y);
+    sprite return_sprite(int number);
+private:
+};
+
+//----------------------------------------------------------------------
+
+class anim_sequence {
 
 public:
-    std::unordered_map<int,transform> sprite_list;
-    std::vector<int> frame_list;
-    anim_object(Adafruit_PCD8544& display);
-    void add_frame(int frame_number,transform sprite_transform);
-    void copy_frame(int copy_frame,int frame_number);
-    void create_frame(int frame_number,int pos_x, int pos_y,sprite image);
-    void generate_order_from_frames();
-    void manually_create_order(std::vector<int> frames);
-    void play(int frame_number);
+    int transform_index = 0;
+    int sprite_index = 0;
+    int playback_number = 1;
+    std::unordered_map<int,int> sprite_keyframes;
+    std::unordered_map<int,co_ordinate> transform_keyframes;
+    anim_sequence(int seq_len);
+    void add_sprite_keyframe(int frame_number,int sprite_number);
+    void add_transform_keyframe(int frame_number,int coord_x, int coord_y);
+    int return_current_sprite(int frame_number,int total_seq_len);
+    co_ordinate return_current_coord(int frame_number,int total_seq_len);
+    void make_loop(int number_of_loops);
+    int get_seq_size();
 
 private:
-    Adafruit_PCD8544& lcd;
+    int len;
 };
+
+//----------------------------------------------------------------------
+
+
+
+class compilation {
+public:
+    int seq_index=0;
+    int last_frame_number = 0;
+    std::unordered_map<int,anim_sequence*> sequences;
+
+    compilation(int time_len);
+    void add_sequence(anim_sequence& added_seq);
+    void add_loop(anim_sequence& added_seq,int number_of_loops);
+
+    void play(int frame_number, Adafruit_PCD8544& lcd, sprite_sheet& ss);
+
+    private:
+    int tl_len;
+};
+
+
+//----------------------------------------------------------------------
 
 extern uint8_t walk_L[SPRITE_SIZE];
 extern uint8_t walk_R[SPRITE_SIZE];
@@ -76,7 +114,19 @@ extern const unsigned char menu_alert [] PROGMEM;
 
  class animation{
      public:
+
+        sprite_sheet meat_sprites = sprite_sheet();
+        sprite_sheet other_sprites = sprite_sheet();
+
+
+        anim_sequence eating_seq = anim_sequence(3);
+        anim_sequence test_seq = anim_sequence(2);
+
+        compilation test_comp = compilation(9);
+
+
         animation();
+        void make_sequences();
         void initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* r_L,unsigned char* n_R,unsigned char* c_R,unsigned char* r_R);
         void retreiveFrame(int frameNo, unsigned long timeCheck,int need,int poops,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info,int game_H,int game_M);
         void frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number,Adafruit_PCD8544 lcd);
@@ -101,48 +151,13 @@ extern const unsigned char menu_alert [] PROGMEM;
         void draw_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status);
         void select_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status,int page_number);
 
+
+
     private:
         unsigned char* orderArray[34];
 
 
 };
-
-// struct frame_item {
-//      int pos_x;
-//      int pos_y;
-//      const unsigned char* sprite;
-//      int size_x;
-//      int size_y;
-// };
-//
-// class frame_sprite_list {
-//     public:
-//     frame_sprite_list();
-//     void add_sprite(frame_item item);
-//
-//
-//     std::vector<frame_item> items;
-//
-//     private:
-// };
-//
-// class anim_sequence {
-//
-//     public:
-//         anim_sequence(Adafruit_PCD8544& ada_lcd);
-//        void add_frame(frame_sprite_list frame);
-//        void play(int frame_number);
-//
-//        std::vector<frame_sprite_list> frame_list;
-//
-//
-//     private:
-//         Adafruit_PCD8544& lcd;
-//
-// };
-
-//frame_sprite_list test_list12;
-//frame_sprite_list test_list22;
 
 #endif
 

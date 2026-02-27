@@ -37,7 +37,7 @@ int action_toggle=0;
 const unsigned long action_time[9][12] = {
   /*null*/{0,0,0,0,0,0,0,0,0,0,0,0},
   /*stat_page*/{0,0,0,0,0,0,0,0,0,0,0,0},
-  /*food_page*/{2000,2500,2000,0,0,0,0,0,0,0,0,0},
+  /*food_page*/{4000,2500,2000,0,0,0,0,0,0,0,0,0},
   /*training_page*/{3000,3000,3000,3000,3000,3000,500,500,500,500,500,500},
   /*battle_page*/{0,0,0,0,0,0,0,0,0,0,0,0},
   /*poop_page*/{6500,2000,0,0,0,0,0,0,0,0,0,0},
@@ -105,6 +105,8 @@ void setup() {
   loadCharacter(digimon); 
 
   sprite_anim = animation();
+
+  sprite_anim.make_sequences();
 
   sprite_anim.initialise(walk_L,crouch_L,roar_L,walk_R,crouch_R,roar_R);
 
