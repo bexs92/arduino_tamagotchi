@@ -75,8 +75,7 @@ public:
 
     compilation(int time_len);
     void add_sequence(anim_sequence& added_seq);
-    void add_loop(anim_sequence& added_seq,int number_of_loops);
-
+    void create_one_off_frame(int sprite_number,int pos_x, int pos_y);
     void play(int frame_number, Adafruit_PCD8544& lcd, sprite_sheet& ss);
 
     private:
@@ -115,47 +114,82 @@ extern const unsigned char menu_alert [] PROGMEM;
  class animation{
      public:
 
+        sprite_sheet char_sprites = sprite_sheet();
+        sprite_sheet symbol_sprites = sprite_sheet();
+        //-----------------------------------------------
+
+        anim_sequence idle_walk = anim_sequence(34);
+        compilation idle_walk_comp = compilation(34);
+        //-----------------------------------------------
+
+
         sprite_sheet meat_sprites = sprite_sheet();
-        sprite_sheet other_sprites = sprite_sheet();
+
+        anim_sequence solo_sprite = anim_sequence(1);
 
 
-        anim_sequence eating_seq = anim_sequence(3);
-        anim_sequence test_seq = anim_sequence(2);
+        anim_sequence om_nom = anim_sequence(2);
+        compilation om_nom_comp = compilation(7);
 
-        compilation test_comp = compilation(9);
+        anim_sequence sml_meat_eat = anim_sequence(5);
+        anim_sequence big_meat_eat = anim_sequence(7);
 
+        compilation sml_meat_comp = compilation(5);
+        compilation big_meat_comp = compilation(7);
 
-        animation();
+        //-----------------------------------------------
+
+        anim_sequence happy_seq = anim_sequence(2);
+        anim_sequence sun_seq = anim_sequence(2);
+
+        compilation happy_comp = compilation(6);
+        compilation sun_comp = compilation(6);
+
+        //-----------------------------------------------
+
+        sprite_sheet toilet_sprites = sprite_sheet();
+        anim_sequence toilet_digi= anim_sequence(8);
+        anim_sequence toilet_seq= anim_sequence(14);
+        anim_sequence toilet_symbols= anim_sequence(8);
+
+        compilation toilet_digi_comp = compilation(14);
+        compilation toilet_comp = compilation(14);
+        compilation toilet_symbol_comp = compilation(14);
+
+        //-----------------------------------------------
+
+        animation(Adafruit_PCD8544& display);
         void make_sequences();
         void initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* r_L,unsigned char* n_R,unsigned char* c_R,unsigned char* r_R);
-        void retreiveFrame(int frameNo, unsigned long timeCheck,int need,int poops,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info,int game_H,int game_M);
-        void frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number,Adafruit_PCD8544 lcd);
-        void draw_menu(int frame_number,unsigned long time,int action,int need,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info);
-        void stat_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,info_node info);
-        void food_page(int page_number,int frameNumber,unsigned long time,int action,Adafruit_PCD8544 lcd,Tamagotchi data);
-        void training_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm);
-        void light_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data);
-        void disc_page(int page_number,int frame_number, int action,Adafruit_PCD8544 lcd,Tamagotchi data);
-        void eating_anim(int frameNumber,unsigned long time,Adafruit_PCD8544 lcd,int meat);
-        void toilet_anim(int frameNumber,Adafruit_PCD8544 lcd);
-        void disc_anim(int frameNumber,Adafruit_PCD8544 lcd,int page);
-        void need_anim(int frameNumber,int need,int poops,int menu_number,Adafruit_PCD8544 lcd);
-        void clean_anim(int frameNumber,int poops,Adafruit_PCD8544 lcd);
-        void pooping_anim(int frameNumber,int menu_number,int poops,int toggle,Adafruit_PCD8544 lcd);
-        void nope_anim(int frameNumber,Adafruit_PCD8544 lcd);
-        void hp_anim(int frameNumber,int page_number,Adafruit_PCD8544 lcd,Tamagotchi data, Statemachine sm);
-        void mp_anim(int frameNumber,int buttonPush,Adafruit_PCD8544 lcd,Tamagotchi data, Statemachine sm,unsigned long time);
-        void spd_anim(int frameNumber,Adafruit_PCD8544 lcd);
-        void off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count,Adafruit_PCD8544 lcd);
-        void rest_anim(int frameNumber,Adafruit_PCD8544 lcd);
-        void draw_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status);
-        void select_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status,int page_number);
+        void retreiveFrame(int frameNo, unsigned long timeCheck,int need,int poops,Tamagotchi data,Statemachine sm,info_node info,int game_H,int game_M);
+        void comp_frame(compilation& comp,sprite_sheet ss,int frame_number,int poops,int menu_number);
+        void frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number);
+        void draw_menu(int frame_number,unsigned long time,int action,int need,Tamagotchi data,Statemachine sm,info_node info);
+        void stat_page(int page_number,Tamagotchi data,info_node info);
+        void food_page(int page_number,int frameNumber,unsigned long time,int action,Tamagotchi data);
+        void training_page(int page_number, Tamagotchi data,Statemachine sm);
+        void light_page(int page_number,Tamagotchi data);
+        void disc_page(int page_number,int frame_number, int action,Tamagotchi data);
+        void eating_anim(int frameNumber,unsigned long time,int meat);
+        void toilet_anim(int frameNumber);
+        void disc_anim(int frameNumber,int page);
+        void need_anim(int frameNumber,int need,int poops,int menu_number);
+        void clean_anim(int frameNumber,int poops);
+        void pooping_anim(int frameNumber,int menu_number,int poops,int toggle);
+        void nope_anim(int frameNumber);
+        void hp_anim(int frameNumber,int page_number,Tamagotchi data, Statemachine sm);
+        void mp_anim(int frameNumber,int buttonPush,Tamagotchi data, Statemachine sm,unsigned long time);
+        void spd_anim(int frameNumber);
+        void off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count);
+        void rest_anim(int frameNumber);
+        void draw_side_menu(int sound_status, int light_status);
+        void select_side_menu(int sound_status, int light_status,int page_number);
 
 
 
     private:
         unsigned char* orderArray[34];
-
+        Adafruit_PCD8544& lcd;
 
 };
 

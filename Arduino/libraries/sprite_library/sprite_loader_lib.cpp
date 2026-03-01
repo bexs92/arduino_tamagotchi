@@ -127,6 +127,19 @@ void compilation::add_sequence(anim_sequence& added_seq) {
     sequences[temp_number]=&added_seq;
 };
 
+void compilation::create_one_off_frame(int sprite_number,int pos_x, int pos_y){
+
+    anim_sequence solo_frame = anim_sequence(1);
+
+    solo_frame.add_sprite_keyframe(0,sprite_number);
+    solo_frame.add_transform_keyframe(0,pos_x,pos_y);
+
+    Serial.println("Got here");
+
+    add_sequence(solo_frame);
+
+};
+
 void compilation::play(int frame_number, Adafruit_PCD8544& lcd, sprite_sheet& ss) {
 
     int current_frame = frame_number%tl_len;
@@ -286,6 +299,8 @@ const int h_dist[34] = {
     16,14,10,10,14,14,10,6,6,6,6,6,6,6,6,10,14,16,20,24,24,20,20,24,28,28,28,28,28,28,28,28,24,20
 };
 
+const int stored_h_dist[16][2] = {{0,16},{1,14},{2,10},{4,14},{6,10},{7,6},{15,10},{16,14},{17,16},{18,20},{19,24},{21,20},{23,24},{24,28},{32,24},{33,20}};
+
 const int menu_steps_H[9]={0,4,14,25,36,4,14,25,36};
 const int menu_steps_V[9]={0,4,4,4,4,36,36,36,36};
 
@@ -324,35 +339,143 @@ const int menu_locations[4][4]{
     {68,24,15,10}
 };
 
-animation::animation(){
+animation::animation(Adafruit_PCD8544& display)
+: lcd(display) {
+
     meat_sprites;
-    eating_seq;
-    test_comp;
+    symbol_sprites;
+    toilet_sprites;
 };
 
 void animation::make_sequences(){
 
-    meat_sprites.add_sprite(sml_meat,11,10);
-    meat_sprites.add_sprite(sml_meat_half,11,10);
-    meat_sprites.add_sprite(sml_meat_empty,11,10);
+    //-------------------------------------------------------------
 
-    meat_sprites.add_sprite(full_heart,11,10);
-    meat_sprites.add_sprite(empty_heart,11,10);
+    //idle animation set up
 
-    test_seq.make_loop(3);
+    char_sprites.add_sprite(walk_L,16,16);    //0
+    char_sprites.add_sprite(walk_R,16,16);    //1
+    char_sprites.add_sprite(roar_L,16,16);    //2
+    char_sprites.add_sprite(roar_R,16,16);    //3
+    char_sprites.add_sprite(crouch_L,16,16);  //4
+    char_sprites.add_sprite(crouch_R,16,16);  //5
+    char_sprites.add_sprite(sleep_L,16,16);   //6
+    char_sprites.add_sprite(sad_L,16,16);     //7
+    char_sprites.add_sprite(sad_R,16,16);     //8
+    char_sprites.add_sprite(happy_L,16,16);   //9
 
-    eating_seq.sprite_keyframes={{0,0},{2,1}};
-    test_seq.sprite_keyframes={{0,3},{1,4}};
+    //symbol sprites
+
+    symbol_sprites.add_sprite(null_item,11,10);  //0
+    symbol_sprites.add_sprite(sun,11,10);        //1
+    symbol_sprites.add_sprite(thinking,11,10);   //2
 
 
-    eating_seq.add_transform_keyframe(0,4,16);
-    eating_seq.add_transform_keyframe(1,4,21);
+    idle_walk.make_loop(8);
 
-    test_seq.add_transform_keyframe(3,16,20);
-    test_seq.add_transform_keyframe(4,18,16);
+    //it's quicker to use a for loop to add the transform keyframes to the idle loop
+    for(int i=0; i<17; i++){
+        idle_walk.add_transform_keyframe(stored_h_dist[i][0],stored_h_dist[i][1],15);
+    };
 
-    test_comp.add_sequence(eating_seq);
-    test_comp.add_sequence(test_seq);
+    idle_walk.sprite_keyframes={{0,0},{2,4},{3,5},{4,1},{5,0},{6,4},{8,5},{9,4},{10,2},{11,4},{12,2},{13,4},{14,5},{16,1},{19,5},{20,4},{21,0},{22,1},{23,5},{25,4},{26,5},{27,3},{28,5},{29,3},{30,5},{31,4},{33,0}};
+
+    idle_walk_comp.add_sequence(idle_walk);
+
+    //-------------------------------------------------------------
+
+    //Eating animation
+    solo_sprite.add_sprite_keyframe(0,4);
+    solo_sprite.add_transform_keyframe(0,16,16);
+
+    om_nom.make_loop(3);
+    om_nom.add_sprite_keyframe(0,4);
+    om_nom.add_sprite_keyframe(1,2);
+    om_nom.add_transform_keyframe(0,16,16);
+
+    //om_nom_comp.create_one_off_frame(4,16,16);
+    om_nom_comp.add_sequence(solo_sprite);
+    om_nom_comp.add_sequence(om_nom);
+    om_nom_comp.add_sequence(solo_sprite);
+
+    meat_sprites.add_sprite(sml_meat,11,10);        //0
+    meat_sprites.add_sprite(sml_meat_half,11,10);   //1
+    meat_sprites.add_sprite(sml_meat_empty,11,10);  //2
+    meat_sprites.add_sprite(menu_food,11,10);       //3
+    meat_sprites.add_sprite(food_half,11,10);       //4
+    meat_sprites.add_sprite(food_third,11,10);      //5
+    meat_sprites.add_sprite(food_empty,11,10);      //6
+    meat_sprites.add_sprite(null_item,11,10);       //7
+
+    sml_meat_eat.sprite_keyframes ={{0,0},{2,1},{3,2},{4,7}};
+
+    sml_meat_eat.add_transform_keyframe(0,4,16);
+    sml_meat_eat.add_transform_keyframe(1,4,21);
+
+    sml_meat_comp.add_sequence(sml_meat_eat);
+
+    big_meat_eat.sprite_keyframes ={{0,3},{2,4},{3,5},{4,6},{5,7}};
+    big_meat_eat.add_transform_keyframe(0,4,16);
+    big_meat_eat.add_transform_keyframe(1,4,21);
+
+    big_meat_comp.add_sequence(big_meat_eat);
+
+    //-------------------------------------------------------------
+
+    //happy anim_sequence
+
+    happy_seq.make_loop(3);
+    happy_seq.sprite_keyframes = {{0,0},{1,2}};
+    happy_seq.add_transform_keyframe(0,16,16);
+
+    sun_seq.make_loop(3);
+    sun_seq.sprite_keyframes = {{0,10},{1,9}};
+    happy_seq.add_transform_keyframe(0,32,12);
+
+    happy_comp.add_sequence(happy_seq);
+    sun_comp.add_sequence(sun_seq);
+
+    //-------------------------------------------------------------
+
+    //toilet animation
+
+    toilet_sprites.add_sprite(crouch_L,16,16);         //0
+    toilet_sprites.add_sprite(walk_L,16,16);           //1
+    toilet_sprites.add_sprite(happy_L,16,16);          //2
+    toilet_sprites.add_sprite(toilet_1,16,16);         //3
+    toilet_sprites.add_sprite(toilet_2,16,16);         //4
+    toilet_sprites.add_sprite(fart_1,11,10);           //5
+    toilet_sprites.add_sprite(fart_2,11,10);           //6
+    toilet_sprites.add_sprite(music_note_1,11,10);     //7
+    toilet_sprites.add_sprite(music_note_2,11,10);     //8
+    toilet_sprites.add_sprite(sun,11,10);              //9
+    toilet_sprites.add_sprite(null_item,11,10);        //10
+
+    toilet_digi.sprite_keyframes ={{0,0},{1,1},{2,0},{3,1},{4,10},{6,7},{7,8},{8,10}};
+    toilet_digi.add_transform_keyframe(0,32,16);
+    toilet_digi.add_transform_keyframe(1,31,16);
+    toilet_digi.add_transform_keyframe(2,30,16);
+    toilet_digi.add_transform_keyframe(6,4,12);
+
+    toilet_seq.sprite_keyframes = {{0,3},{3,4},{4,3},{9,10}};
+    toilet_seq.add_transform_keyframe(0,8,16);
+    toilet_seq.add_transform_keyframe(1,12,16);
+    toilet_seq.add_transform_keyframe(2,16,16);
+
+    toilet_symbols.sprite_keyframes = {{0,10},{6,5},{7,6}};
+    toilet_symbols.add_transform_keyframe(0,32,12);
+
+    toilet_digi_comp.add_sequence(toilet_digi);
+    toilet_digi_comp.add_sequence(happy_seq);
+
+    toilet_comp.add_sequence(toilet_seq);
+
+    toilet_symbol_comp.add_sequence(toilet_symbols);
+    toilet_symbol_comp.add_sequence(sun_seq);
+
+    // anim_sequence toilet_seq = anim_sequence(14);
+    // compilation toilet_comp = compilation(14);
+
 }
 
 void animation::initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* r_L,unsigned char* n_R,unsigned char* c_R,unsigned char* r_R) {
@@ -399,27 +522,27 @@ void animation::initialise(unsigned char* n_L,unsigned char* c_L,unsigned char* 
 }
 
 void animation::retreiveFrame(int frame_number, unsigned long time_check,int need,int
-                              poops,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info,int game_H,int game_M){
+                              poops,Tamagotchi data,Statemachine sm,info_node info,int game_H,int game_M){
 
-    //draw_side_menu(lcd,1,1);
+
     if(sm.get_in_menu()==1){
-        draw_menu(frame_number,time_check,sm.get_action(),need,lcd,data,sm,info);
+        draw_menu(frame_number,time_check,sm.get_action(),need,data,sm,info);
         if(sm.get_menu_count()>0){
-            draw_side_menu(lcd,data.sound_status,data.light_status);
+            draw_side_menu(data.sound_status,data.light_status);
         }
     }
 
     else{
 
         if(need>0){
-            need_anim(frame_number,need,poops,sm.get_menu_count(),lcd);
+            need_anim(frame_number,need,poops,sm.get_menu_count());
         }
 
         else{
 
             if(pooping_toggle!=poops){
                 if(poops!=0){
-                    pooping_anim(frame_number,sm.get_menu_count(),poops,sm.get_in_menu(),lcd);
+                    pooping_anim(frame_number,sm.get_menu_count(),poops,sm.get_in_menu());
                 }
                 else{
                     pooping_toggle=0;
@@ -433,12 +556,18 @@ void animation::retreiveFrame(int frame_number, unsigned long time_check,int nee
                     horizontal_dist=horizontal_dist-((minus_poop[poops])*5);
                 }
 
-                frame(orderArray[frame_number],horizontal_dist,15,frame_number,poops,sm.get_menu_count(),lcd);
+                //BEXS please note the poop indent will not be happening right now - maybe it can be an exra container?
+                // OR maybe can just have a transform function in the comp?
+
+                //idle_walk_comp.play(frame_number,lcd,char_sprites);
+                comp_frame(idle_walk_comp,char_sprites,frame_number,poops,sm.get_menu_count());
+
+                //frame(orderArray[frame_number],horizontal_dist,15,frame_number,poops,sm.get_menu_count());
 
             }
 
         }
-        draw_side_menu(lcd,data.sound_status,data.light_status);
+        draw_side_menu(data.sound_status,data.light_status);
     }
 
     draw_clock(game_H,game_M,lcd);
@@ -446,10 +575,33 @@ void animation::retreiveFrame(int frame_number, unsigned long time_check,int nee
     lcd.display();
 }
 
-void animation::frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number,Adafruit_PCD8544 lcd) {
+void animation::comp_frame(compilation& comp,sprite_sheet ss,int frame_number,int poops,int menu_number) {
+    lcd.clearDisplay();
+    comp.play(frame_number,lcd,ss);
+    lcd.drawRect(0,0,50,48,BLACK);
+
+    lcd.drawBitmap(menu_steps_H[menu_number],menu_steps_V[menu_number],menu_array[menu_number],11,10,BLACK);
+
+    if (poops>0){
+        if (frame_number%2==0){
+            for(int i=0; i<poops; i++){
+                lcd.drawBitmap(poop_steps_H[i],poop_steps_V[i],poop1,11,10,BLACK);
+            }
+        }
+        else{
+            for(int i=0; i<poops; i++){
+                lcd.drawBitmap(poop_steps_H[i],poop_steps_V[i],poop2,11,10,BLACK);
+            }
+        };
+
+    };
+};
+
+void animation::frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number) {
 
     lcd.clearDisplay();
     lcd.drawBitmap(xPos,yPos,image,16,16,BLACK);
+    //idle_walk_comp.play(frame_number,lcd,char_sprites);
     lcd.drawRect(0,0,50,48,BLACK);
 
     lcd.drawBitmap(menu_steps_H[menu_number],menu_steps_V[menu_number],menu_array[menu_number],11,10,BLACK);
@@ -470,7 +622,7 @@ void animation::frame(uint8_t* image,int xPos, int yPos,int frame_number,int poo
 
  };
 
-void animation::draw_menu(int frame_number,unsigned long time ,int action,int need,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,info_node info){
+void animation::draw_menu(int frame_number,unsigned long time ,int action,int need,Tamagotchi data,Statemachine sm,info_node info){
 
     int menu_number = sm.get_menu_count();
     int page_number = sm.get_page_count();
@@ -488,42 +640,42 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
 
     if (menu_number==0){
         Serial.println("Middle menu button seleted");
-        select_side_menu(lcd,data.sound_status,data.light_status,page_number);
+        select_side_menu(data.sound_status,data.light_status,page_number);
     }
 
     if (menu_number==1){
-        stat_page(page_number,lcd,data,info);
+        stat_page(page_number,data,info);
     }
 
     if (menu_number==2){
         if(page_number<2){
-            food_page(page_number,frame_number,time,action,lcd,data);
+            food_page(page_number,frame_number,time,action,data);
         }
         else {
-            nope_anim(frame_number,lcd);
+            nope_anim(frame_number);
         }
     }
 
     if (menu_number==3){
         if(action==1){
             if(page_number==0){
-                hp_anim(sm.get_training(),page_number,lcd,data,sm);
+                hp_anim(sm.get_training(),page_number,data,sm);
             }
             if(page_number==1){
-                mp_anim(frame_number,sm.get_training(),lcd,data,sm,time);
+                mp_anim(frame_number,sm.get_training(),data,sm,time);
             }
 
             if(page_number==2){
-                off_anim(frame_number,sm.get_time_store(),time,sm.get_training(),lcd);
+                off_anim(frame_number,sm.get_time_store(),time,sm.get_training());
             }
 
             if(page_number==4){
-                spd_anim(sm.get_training(),lcd);
+                spd_anim(sm.get_training());
             }
 
         }
         else{
-            training_page(page_number,lcd,data,sm);
+            training_page(page_number,data,sm);
         }
     }
 
@@ -534,10 +686,10 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     if (menu_number==5){
 
         if(page_number==1){
-            clean_anim(frame_number,1,lcd);
+            clean_anim(frame_number,1);
         }
         else {
-            toilet_anim(frame_number,lcd);
+            toilet_anim(frame_number);
         }
 
     }
@@ -545,14 +697,14 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     if (menu_number==6){
         if(action==1){
             if(page_number==0){
-                rest_anim(frame_number,lcd);
+                rest_anim(frame_number);
             }
             else{
-                rest_anim(frame_number,lcd);
+                rest_anim(frame_number);
             }
         }
         else{
-            light_page(page_number,lcd,data);
+            light_page(page_number,data);
         }
 
     }
@@ -562,11 +714,11 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     }
 
     if (menu_number==8){
-        disc_page(page_number,frame_number,action,lcd,data);
+        disc_page(page_number,frame_number,action,data);
     }
 }
 
-void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,info_node info){
+void animation::stat_page(int page_number,Tamagotchi data,info_node info){
     lcd.setTextColor(BLACK,WHITE);
 
     if (page_number==0) {
@@ -713,13 +865,13 @@ void animation::stat_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,
     }
 }
 
-void animation::food_page(int page_number,int frameNumber,unsigned long time,int action,Adafruit_PCD8544 lcd,Tamagotchi data){
+void animation::food_page(int page_number,int frameNumber,unsigned long time,int action,Tamagotchi data){
 
 
     if (page_number==0) {
 
         if(action==1) {
-            eating_anim(frameNumber,time,lcd,page_number);
+            eating_anim(frameNumber,time,page_number);
         }
 
         else {
@@ -739,7 +891,7 @@ void animation::food_page(int page_number,int frameNumber,unsigned long time,int
     if (page_number==1) {
 
         if(action==1) {
-             eating_anim(frameNumber,time,lcd,page_number);
+             eating_anim(frameNumber,time,page_number);
         }
 
         else {
@@ -758,7 +910,7 @@ void animation::food_page(int page_number,int frameNumber,unsigned long time,int
 
 }
 
-void animation::training_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm){
+void animation::training_page(int page_number,Tamagotchi data,Statemachine sm){
 
     if(page_number<6){
 
@@ -812,7 +964,7 @@ void animation::training_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi d
 
 }
 
-void animation::light_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data){
+void animation::light_page(int page_number, Tamagotchi data){
 
 
     if (page_number==0) {
@@ -841,7 +993,7 @@ void animation::light_page(int page_number, Adafruit_PCD8544 lcd,Tamagotchi data
 
 }
 
-void animation::disc_page(int page_number,int frame_number,int action, Adafruit_PCD8544 lcd,Tamagotchi data){
+void animation::disc_page(int page_number,int frame_number,int action, Tamagotchi data){
 
     if (action==0) {
         lcd.drawBitmap(2,14,praise_bmp,11,10,BLACK);
@@ -875,136 +1027,43 @@ void animation::disc_page(int page_number,int frame_number,int action, Adafruit_
     }
 
     if(action==1){
-        disc_anim(frame_number,lcd,page_number);
+        disc_anim(frame_number,page_number);
     }
 
 }
 
-const unsigned char* meat_frames[4][2]={
-    {sml_meat,menu_food},
-    {sml_meat_half,food_half},
-    {sml_meat_empty,food_third},
-    {sml_meat_empty,food_empty}
-};
-
-void animation::eating_anim(int frameNumber,unsigned long time,Adafruit_PCD8544 lcd,int meat){
+void animation::eating_anim(int frameNumber,unsigned long time,int meat){
 
     lcd.clearDisplay();
     lcd.drawRect(0,0,50,48,BLACK);
 
     //---------------------------------------------------------------------------------------
 
-    test_comp.play(frameNumber,lcd,meat_sprites);
+    if (meat==0){
+        sml_meat_comp.play(frameNumber,lcd,meat_sprites);
+    }
 
-    //---------------------------------------------------------------------------------------
+    else {
+        big_meat_comp.play(frameNumber,lcd,meat_sprites);
+    };
 
-    //---------------------------------------------------------------------------------------
-
-    // if (frameNumber%6==0){
-    //     lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-    //     lcd.drawBitmap(4,16,meat_frames[0][meat],11,10,BLACK);
-    // }
-    //
-    // if (frameNumber%6==1){
-    //     lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-    //     lcd.drawBitmap(4,21,meat_frames[0][meat],11,10,BLACK);
-    // }
-    //
-    // if (frameNumber%6==2){
-    //     lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
-    //     lcd.drawBitmap(4,21,meat_frames[1][meat],11,10,BLACK);
-    // }
-    //
-    // if (frameNumber%6==3){
-    //     lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-    //     lcd.drawBitmap(4,21,meat_frames[2][meat],11,10,BLACK);
-    // }
-    //
-    // if (frameNumber%6==4){
-    //     lcd.drawBitmap(16,16,roar_L,16,16,BLACK);
-    //     if(meat==1){
-    //         lcd.drawBitmap(4,21,food_empty,11,10,BLACK);
-    //     }
-    // }
-    //
-    // if (frameNumber%6==5){
-    //     lcd.drawBitmap(16,16,crouch_L,16,16,BLACK);
-    // }
+    om_nom_comp.play(frameNumber,lcd,char_sprites);
 
 }
 
-void animation::toilet_anim(int frameNumber,Adafruit_PCD8544 lcd) {
+void animation::toilet_anim(int frameNumber) {
 
     lcd.clearDisplay();
     lcd.drawRect(0,0,50,48,BLACK);
 
-    if (frameNumber%14==0){
-        lcd.drawBitmap(32,16,crouch_L,16,16,BLACK);
-        lcd.drawBitmap(8,16,toilet_1,16,16,BLACK);
-    }
+    toilet_digi_comp.play(frameNumber,lcd,toilet_sprites);
+    toilet_comp.play(frameNumber,lcd,toilet_sprites);
+    toilet_symbol_comp.play(frameNumber,lcd,toilet_sprites);
 
-    if (frameNumber%14==1){
-        lcd.drawBitmap(31,16,walk_L,16,16,BLACK);
-        lcd.drawBitmap(12,16,toilet_1,16,16,BLACK);
-    }
-
-    if (frameNumber%14==2){
-        lcd.drawBitmap(30,16,crouch_L,16,16,BLACK);
-        lcd.drawBitmap(16,16,toilet_1,16,16,BLACK);
-    }
-
-    if (frameNumber%14==3){
-        lcd.drawBitmap(30,16,walk_L,16,16,BLACK);
-        lcd.drawBitmap(16,16,toilet_2,16,16,BLACK);
-    }
-
-    if (frameNumber%14==4){
-        lcd.drawBitmap(16,16,toilet_1,16,16,BLACK);
-    }
-
-    if (frameNumber%14==5){
-        lcd.drawBitmap(16,16,toilet_1,16,16,BLACK);
-    }
-
-    if (frameNumber%14==6){
-        lcd.drawBitmap(16,16,toilet_1,16,16,BLACK);
-        lcd.drawBitmap(30,12,fart_1,11,10,BLACK);
-        lcd.drawBitmap(4,12,music_note_1,11,10,BLACK);
-    }
-
-    if (frameNumber%14==7){
-        lcd.drawBitmap(16,16,toilet_1,16,16,BLACK);
-        lcd.drawBitmap(30,12,fart_2,11,10,BLACK);
-        lcd.drawBitmap(4,12,music_note_2,11,10,BLACK);
-    }
-
-    if (frameNumber%14==8){
-        lcd.drawBitmap(16,16,toilet_1,16,16,BLACK);
-    }
-
-    if (frameNumber%14==9){
-        disc_anim(frameNumber,lcd,0);
-    }
-
-    if (frameNumber%14==10){
-        disc_anim(frameNumber,lcd,0);
-    }
-
-    if (frameNumber%14==11){
-        disc_anim(frameNumber,lcd,0);
-    }
-
-    if (frameNumber%14==12){
-        disc_anim(frameNumber,lcd,0);
-    }
-
-    if (frameNumber%14==13){
-        disc_anim(frameNumber,lcd,0);
-    }
     pooping_toggle=0;
 }
 
-void animation::clean_anim(int frameNumber,int poops,Adafruit_PCD8544 lcd){
+void animation::clean_anim(int frameNumber,int poops){
     int c_h_dist = 38;
 
     if(poops>0){
@@ -1028,11 +1087,10 @@ void animation::clean_anim(int frameNumber,int poops,Adafruit_PCD8544 lcd){
          pooping_toggle=poops;
     }
 
-    //lcd.display();
 }
 
 
-void animation::disc_anim(int frameNumber,Adafruit_PCD8544 lcd,int page) {
+void animation::disc_anim(int frameNumber,int page) {
 
     if (frameNumber%2==0){
         lcd.drawBitmap(16,16,disc_frames[0][page],16,16,BLACK);
@@ -1047,7 +1105,7 @@ void animation::disc_anim(int frameNumber,Adafruit_PCD8544 lcd,int page) {
 
 int needs_frame = 0;
 
-void animation::need_anim(int frameNumber,int need,int poops,int menu_number,Adafruit_PCD8544 lcd) {
+void animation::need_anim(int frameNumber,int need,int poops,int menu_number) {
 
     lcd.clearDisplay();
     lcd.drawRect(0,0,50,48,BLACK);
@@ -1061,13 +1119,13 @@ void animation::need_anim(int frameNumber,int need,int poops,int menu_number,Ada
     }
 
     if (frameNumber%2==0){
-        frame(sad_L, n_h_dist, 16,frameNumber,poops,menu_number,lcd);
+        frame(sad_L, n_h_dist, 16,frameNumber,poops,menu_number);
         lcd.drawBitmap(bub_dist,16,bubble_small,12,13,BLACK);
     }
 
     else{
 
-        frame(roar_L, n_h_dist, 16,frameNumber,poops,menu_number,lcd);
+        frame(roar_L, n_h_dist, 16,frameNumber,poops,menu_number);
         lcd.drawBitmap(bub_dist,16,bubble_big,12,13,BLACK);
         lcd.drawBitmap(bub_dist,15,need_sprite[needs_order[need][((frameNumber%16)-1)/2]],11,10,BLACK);
 
@@ -1077,7 +1135,7 @@ void animation::need_anim(int frameNumber,int need,int poops,int menu_number,Ada
 
 }
 
-void animation::pooping_anim(int frameNumber,int menu_number,int poops,int toggle,Adafruit_PCD8544 lcd) {
+void animation::pooping_anim(int frameNumber,int menu_number,int poops,int toggle) {
 
     int p_h_dist = 28;
 
@@ -1086,32 +1144,32 @@ void animation::pooping_anim(int frameNumber,int menu_number,int poops,int toggl
     }
 
     if (frameNumber%6==0){
-        frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
+        frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number);
     }
 
     if (frameNumber%6==1){
-        frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
+        frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number);
     }
 
     if (frameNumber%6==2){
-         frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
+         frame(sleep_L, p_h_dist, 16,frameNumber,poops,menu_number);
     }
 
     if (frameNumber%6==3){
-        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
+        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number);
     }
     if (frameNumber%6==4){
-        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
+        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number);
     }
 
     if (frameNumber%6==5){
-        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number,lcd);
+        frame(roar_L, p_h_dist, 16,frameNumber,poops,menu_number);
         pooping_toggle=poops;
     }
 
 }
 
-void animation::nope_anim(int frameNumber,Adafruit_PCD8544 lcd) {
+void animation::nope_anim(int frameNumber) {
 
     Serial.println("checking");
 
@@ -1123,10 +1181,9 @@ void animation::nope_anim(int frameNumber,Adafruit_PCD8544 lcd) {
         lcd.drawBitmap(16,16,sad_R,16,16,BLACK);
     }
 
-    //lcd.display();
 }
 
-void animation::hp_anim(int frameNumber,int page_number,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm) {
+void animation::hp_anim(int frameNumber,int page_number,Tamagotchi data,Statemachine sm) {
 
 
         const int blob = 12;
@@ -1197,14 +1254,13 @@ void animation::hp_anim(int frameNumber,int page_number,Adafruit_PCD8544 lcd,Tam
             lcd.drawBitmap(4,16,boulder,16,16,BLACK);
         }
 
-        //lcd.display();
 
 }
 
 int last_mp=0;
 unsigned long mp_time=0;
 
-void animation::mp_anim(int frameNumber,int buttonPush,Adafruit_PCD8544 lcd,Tamagotchi data,Statemachine sm,unsigned long time) {
+void animation::mp_anim(int frameNumber,int buttonPush,Tamagotchi data,Statemachine sm,unsigned long time) {
 
     if(frameNumber%2==0){
         lcd.drawBitmap(8,13,waterfall_3,30,19,BLACK);
@@ -1229,11 +1285,9 @@ void animation::mp_anim(int frameNumber,int buttonPush,Adafruit_PCD8544 lcd,Tama
 
     }
 
-    //lcd.display();
-
 }
 
-void animation::spd_anim(int frameNumber,Adafruit_PCD8544 lcd) {
+void animation::spd_anim(int frameNumber) {
 
     if (frameNumber%2==0){
         lcd.drawBitmap((32-3*(frameNumber%10)),16,crouch_L,16,16,BLACK);
@@ -1244,12 +1298,10 @@ void animation::spd_anim(int frameNumber,Adafruit_PCD8544 lcd) {
     }
 
      lcd.drawBitmap(4,28,finish_line,16,7,BLACK);
-     //lcd.display();
-
 
 }
 
-void animation::off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count,Adafruit_PCD8544 lcd) {
+void animation::off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count) {
 
     //BEXS this needs to be adjusted to the different frame lengths for different attacks
 
@@ -1321,7 +1373,7 @@ void animation::off_anim(int frameNumber,unsigned long charge_time,unsigned long
 
 //---------------------------------------------------------------------------------------------
 
-void animation::rest_anim(int frameNumber,Adafruit_PCD8544 lcd) {
+void animation::rest_anim(int frameNumber) {
 
     lcd.fillRect(2,16,46,16,BLACK);
 
@@ -1335,7 +1387,8 @@ void animation::rest_anim(int frameNumber,Adafruit_PCD8544 lcd) {
 
 }
 
-void animation::draw_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status){
+
+void animation::draw_side_menu(int sound_status, int light_status){
 
     const unsigned char* selected_sprites[4]={
         side_menu_sprites[0][0][sound_status],side_menu_sprites[1][0][light_status],SAVE_BTTN,ART_BTTN
@@ -1347,7 +1400,7 @@ void animation::draw_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_
 
 }
 
-void animation::select_side_menu(Adafruit_PCD8544 lcd,int sound_status, int light_status,int page_number){
+void animation::select_side_menu(int sound_status, int light_status,int page_number){
 
     const unsigned char* selected_sprites[4]={
         side_menu_sprites[0][selection_array[page_number][0]][sound_status],

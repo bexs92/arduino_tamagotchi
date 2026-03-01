@@ -16,12 +16,12 @@
 
 Adafruit_PCD8544 new_lcd = Adafruit_PCD8544(CLK,DIN,DC,CE,RST);
 
+animation sprite_anim = animation(new_lcd);
+
 int frameNumber=0;
 
 const char* digimon;
 info_node info;
-
-animation sprite_anim;
 
 unsigned long previous_time = 0;
 
@@ -37,7 +37,7 @@ int action_toggle=0;
 const unsigned long action_time[9][12] = {
   /*null*/{0,0,0,0,0,0,0,0,0,0,0,0},
   /*stat_page*/{0,0,0,0,0,0,0,0,0,0,0,0},
-  /*food_page*/{4000,2500,2000,0,0,0,0,0,0,0,0,0},
+  /*food_page*/{2000,3000,2000,0,0,0,0,0,0,0,0,0},
   /*training_page*/{3000,3000,3000,3000,3000,3000,500,500,500,500,500,500},
   /*battle_page*/{0,0,0,0,0,0,0,0,0,0,0,0},
   /*poop_page*/{6500,2000,0,0,0,0,0,0,0,0,0,0},
@@ -104,7 +104,7 @@ void setup() {
 
   loadCharacter(digimon); 
 
-  sprite_anim = animation();
+  //animation sprite_anim = animation(new_lcd);
 
   sprite_anim.make_sequences();
 
@@ -153,8 +153,9 @@ void loop() {
     }
 
     sprite_anim.retreiveFrame(frameNumber,time,return_needs(hunger_toggle,poop_toggle,sleepy_toggle,tired_toggle,sick_toggle),
-    onscreen_poops,new_lcd,data,sm,info,game_time_H,game_time_M
+    onscreen_poops,data,sm,info,game_time_H,game_time_M
     );
+    
 
   //something that checks data
   if(data.get_last_hunger()<time){
