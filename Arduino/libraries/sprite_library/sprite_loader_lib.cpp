@@ -430,7 +430,7 @@ void animation::make_sequences(){
 
     sun_seq.make_loop(3);
     sun_seq.sprite_keyframes = {{0,10},{1,9}};
-    happy_seq.add_transform_keyframe(0,32,12);
+    sun_seq.add_transform_keyframe(0,32,12);
 
     happy_comp.add_sequence(happy_seq);
     sun_comp.add_sequence(sun_seq);
@@ -644,7 +644,7 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     }
 
     if (menu_number==1){
-        stat_page(page_number,data,info);
+        stat_page(frame_number,page_number,data,info);
     }
 
     if (menu_number==2){
@@ -718,7 +718,7 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
     }
 }
 
-void animation::stat_page(int page_number,Tamagotchi data,info_node info){
+void animation::stat_page(int frame_number,int page_number,Tamagotchi data,info_node info){
     lcd.setTextColor(BLACK,WHITE);
 
     if (page_number==0) {
@@ -726,9 +726,14 @@ void animation::stat_page(int page_number,Tamagotchi data,info_node info){
 
         sprintf(buffer_1, "%s",info.get_name());
 
-        lcd.setCursor(4,16);
+        lcd.setCursor(4-(frame_number*2),16);
 
         lcd.println(buffer_1); // Print the formatted string
+
+        lcd.fillRect(48,16,16,16,WHITE);
+        lcd.fillRect(0,16,4,16,WHITE);
+
+        lcd.drawRect(0,0,50,48,BLACK);
 
         lcd.drawBitmap(4,26,info.get_type_bitmap(),11,10,BLACK);
 

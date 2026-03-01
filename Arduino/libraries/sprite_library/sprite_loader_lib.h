@@ -165,7 +165,7 @@ extern const unsigned char menu_alert [] PROGMEM;
         void comp_frame(compilation& comp,sprite_sheet ss,int frame_number,int poops,int menu_number);
         void frame(uint8_t* image,int xPos, int yPos,int frame_number,int poops,int menu_number);
         void draw_menu(int frame_number,unsigned long time,int action,int need,Tamagotchi data,Statemachine sm,info_node info);
-        void stat_page(int page_number,Tamagotchi data,info_node info);
+        void stat_page(int frame_number,int page_number,Tamagotchi data,info_node info);
         void food_page(int page_number,int frameNumber,unsigned long time,int action,Tamagotchi data);
         void training_page(int page_number, Tamagotchi data,Statemachine sm);
         void light_page(int page_number,Tamagotchi data);
