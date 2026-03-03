@@ -76,18 +76,20 @@ void Statemachine::check(unsigned long time,int sound_status){
             if (A.diff>50){
                 if(A.toggle==1){
                     A.toggle=0;
-                    if (in_menu==1){
-                        page_count=(page_count+1)%A_max_count[menu_count];
-                        Serial.println("A - got here");
-                        if(sound_status==1){
-                            tone(sound_pin,C_mid);
-                        }
+                    if(in_action==0){
+                        if (in_menu==1){
+                            page_count=(page_count+1)%A_max_count[menu_count];
+                            Serial.println("A - got here");
+                            if(sound_status==1){
+                                tone(sound_pin,C_mid);
+                            }
 
-                    }
-                    else {
-                        menu_count=(menu_count+1)%9;
-                        if(sound_status==1){
-                            tone(sound_pin,major_scale[menu_count-1]);
+                        }
+                        else {
+                            menu_count=(menu_count+1)%9;
+                            if(sound_status==1){
+                                tone(sound_pin,major_scale[menu_count-1]);
+                            }
                         }
                     }
                 }
@@ -110,6 +112,9 @@ void Statemachine::check(unsigned long time,int sound_status){
                         Serial.println("selected_option");
                         if(menu_count==3){
                             if(page_count<6){
+                                if(sound_status==1){
+                                    tone(sound_pin,G_mid);
+                                }
                                 if(page_count!=2){
                                     training_count=training_count+1;
                                     in_action=1;
@@ -117,9 +122,6 @@ void Statemachine::check(unsigned long time,int sound_status){
                                 }
                                 else{
                                     in_action=1;
-                                    if(sound_status==1){
-                                        tone(sound_pin,G_mid);
-                                    }
                                     if(time-time_store<1500){
                                         if(training_count==0){
                                             training_count=round(((((time-time_store)*100)/1500))/10)+1;

@@ -180,6 +180,7 @@ extern const unsigned char menu_alert [] PROGMEM;
         void hp_anim(int frameNumber,int page_number,Tamagotchi data, Statemachine sm);
         void mp_anim(int frameNumber,int buttonPush,Tamagotchi data, Statemachine sm,unsigned long time);
         void spd_anim(int frameNumber);
+        void def_anim(int frameNumber);
         void off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count);
         void rest_anim(int frameNumber);
         void draw_side_menu(int sound_status, int light_status);

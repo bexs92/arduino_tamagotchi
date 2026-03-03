@@ -315,7 +315,7 @@ void loop() {
               data.gen_disc_range(time);
             }
           }
-
+          //training menu
           if (sm.get_menu_count()==3){
               if(game_time_H<23){
                 game_time_H=game_time_H+1;
@@ -422,7 +422,7 @@ void loop() {
           if(sm.get_menu_count()==5){
              sm.set_in_menu(0);
           }
-          //BEXS
+          //training menu
           if (sm.get_menu_count()==3){
             if (sm.get_page_count()==0){
               data.hp=data.hp+(sm.get_training()*5);
@@ -437,23 +437,19 @@ void loop() {
               sm.set_page_count(8);
             }
             if (sm.get_page_count()==3){
-              data.def=data.def+(round(sm.get_training()*0.5));
+              data.def=data.def+(round(sm.get_training()*2.5));
               sm.set_page_count(9);
             }
             if (sm.get_page_count()==4){
-              data.spd=data.spd+(round(sm.get_training()*0.5));
+              data.spd=data.spd+(round(sm.get_training()*2.5));
               sm.set_page_count(10);
             }
 
             if (sm.get_page_count()==5){
-              data.brn=data.brn+(sm.get_training()*5);
+              data.brn=data.brn+(sm.get_training()*2.5);
               sm.set_page_count(11);
 
             }
-
-//            else{
-//              sm.set_training(0);
-//            }
 
           }
       }

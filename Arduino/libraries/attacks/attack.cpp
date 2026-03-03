@@ -45,7 +45,7 @@ void A_fire_tower(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,
     }
 
 
-    lcd.display();
+    //lcd.display();
 }
 //prominance beam
 void A_p_beam(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Adafruit_PCD8544 lcd) {
@@ -91,7 +91,7 @@ void A_p_beam(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Adaf
     }
 
 
-    lcd.display();
+    //lcd.display();
 }
 
 void A_spit_fire(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Adafruit_PCD8544 lcd) {
@@ -134,7 +134,7 @@ void A_spit_fire(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,A
     }
 
 
-    lcd.display();
+    //lcd.display();
 }
 
 void A_red_inferno(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Adafruit_PCD8544 lcd) {
@@ -178,7 +178,7 @@ void A_red_inferno(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L
     }
 
 
-    lcd.display();
+    //lcd.display();
 }
 
 void A_magma_bomb(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Adafruit_PCD8544 lcd) {
@@ -227,7 +227,7 @@ void A_magma_bomb(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,
 
     }
 
-    lcd.display();
+    //lcd.display();
 }
 
 void A_heat_laser(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Adafruit_PCD8544 lcd) {
@@ -273,7 +273,7 @@ void A_heat_laser(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,
         lcd.drawBitmap(32,16,roar_L,16,16,BLACK);
     }
 
-    lcd.display();
+    //lcd.display();
 }
 
 void A_infinity_burn(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Adafruit_PCD8544 lcd) {
@@ -328,7 +328,7 @@ void A_infinity_burn(int frameNumber,unsigned char* crouch_L,unsigned char* roar
     }
 
 
-    lcd.display();
+    //lcd.display();
 }
 
 void A_meltdown(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Adafruit_PCD8544 lcd) {
@@ -395,5 +395,5 @@ void A_meltdown(int frameNumber,unsigned char* crouch_L,unsigned char* roar_L,Ad
         //lcd.drawBitmap(6,16,F_8_5,15,16,BLACK);
     }
 
-    lcd.display();
+    //lcd.display();
 }

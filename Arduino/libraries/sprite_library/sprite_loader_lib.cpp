@@ -669,6 +669,10 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
                 off_anim(frame_number,sm.get_time_store(),time,sm.get_training());
             }
 
+            if(page_number==3){
+                def_anim(sm.get_training());
+            }
+
             if(page_number==4){
                 spd_anim(sm.get_training());
             }
@@ -958,12 +962,27 @@ void animation::training_page(int page_number,Tamagotchi data,Statemachine sm){
         lcd.println(training_list[page_number-6]);
 
         lcd.setCursor(4,18);
-        lcd.println(current_stat[page_number-6]-(sm.get_training()*5));
+
+        int stat_num = page_number-6;
+
+        if (stat_num>1){
+            lcd.println(current_stat[page_number-6]-(round(sm.get_training()*2.5)));
+        }
+        else {
+            lcd.println(current_stat[page_number-6]-(sm.get_training()*5));
+        }
 
         lcd.setCursor(4,28);
         lcd.println("+");
-        lcd.setCursor(8,28);
-        lcd.println(sm.get_training()*5);
+
+         lcd.setCursor(8,28);
+
+        if (stat_num>1){
+            lcd.println(round(sm.get_training()*2.5));
+        }
+        else {
+            lcd.println(sm.get_training()*5);
+        }
 
     }
 
@@ -1278,7 +1297,6 @@ void animation::mp_anim(int frameNumber,int buttonPush,Tamagotchi data,Statemach
     if (last_mp!=buttonPush){
         last_mp=buttonPush;
         mp_time = time;
-
     }
     else {
         if (time-mp_time<300){
@@ -1306,6 +1324,21 @@ void animation::spd_anim(int frameNumber) {
 
 }
 
+void animation::def_anim(int frameNumber) {
+
+    if (frameNumber%2==0){
+        lcd.drawBitmap(32,16,crouch_L,16,16,BLACK);
+        lcd.drawBitmap(4,16,defense_m_3,31,16,BLACK);
+    }
+
+    else{
+        lcd.drawBitmap(32,16,walk_L,16,16,BLACK);
+        lcd.drawBitmap(4,16,defense_m_1,16,16,BLACK);
+    }
+
+
+}
+
 void animation::off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count) {
 
     //BEXS this needs to be adjusted to the different frame lengths for different attacks
@@ -1322,23 +1355,23 @@ void animation::off_anim(int frameNumber,unsigned long charge_time,unsigned long
         if(training_count==0){
             lcd.drawBitmap(32,16,crouch_L,16,16,BLACK);
             lcd.drawBitmap(4,16,training_bag_1,16,16,BLACK);
-            lcd.drawRect(5,26,33,10,BLACK);
+            lcd.drawRect(5,33,33,10,BLACK);
 
             int percent=round(((((time-charge_time)*100)/1500))/10);
 
 
             for (int i=0; i<percent+1; i++) {
-                lcd.drawRect((7+(3*i)),28,2,6,BLACK);
+                lcd.drawRect((7+(3*i)),35,2,6,BLACK);
             }
 
         }
         else {
             lcd.drawBitmap(32,16,crouch_L,16,16,BLACK);
-            lcd.drawRect(5,26,33,10,BLACK);
+            lcd.drawRect(5,33,33,10,BLACK);
             lcd.drawBitmap(4,16,training_bag_1,16,16,BLACK);
 
             for (int i=0; i<training_count; i++) {
-                lcd.drawRect((7+(3*i)),28,2,6,BLACK);
+                lcd.drawRect((7+(3*i)),35,2,6,BLACK);
             }
         }
 
