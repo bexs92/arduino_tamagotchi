@@ -12,3 +12,5 @@ Personal tamagotchi project
 01/03/26 - Merged branch DEV_016 created anim sequence system and converted a couple animations to this method. The rest of the animations need to be changed and I may need to add the ability to pick the sprite sheet per sequence instead of once per comp. This will be opened again in isssue DEV_018, closing DEV_016 for now
 
 01/03/26 - Merged DEV_010, added a basic scrolling function for the first stat page.
+
+04/03/26 - Merged DEV_008 - Added a basic defense training animation - did not change the actual game, it's still a B spam. Have created a new ticket for changing the actual game for it. Also changed the statemachine so that a tone is played during training bacause I noticed it was missing. Also changed the state machine so that the A button is disabled when an action is playing so that the training (and possibly other menus) is not swapped when it's hit.
