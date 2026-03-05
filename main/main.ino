@@ -1,4 +1,4 @@
-
+      
 #include <Adafruit_PCD8544.h>
 #include <SPI.h>
 #include <SdFat.h>
@@ -108,7 +108,7 @@ void setup() {
 
   sprite_anim.make_sequences();
 
-  sprite_anim.initialise(walk_L,crouch_L,roar_L,walk_R,crouch_R,roar_R);
+  //sprite_anim.initialise(walk_L,crouch_L,roar_L,walk_R,crouch_R,roar_R);
 
   new_lcd.clearDisplay();
 
@@ -357,7 +357,7 @@ void loop() {
                 }
               }
 
-              if(sm.get_page_count()==2){
+              if(sm.get_page_count()==2||sm.get_page_count()==5){
                 interval=250;
                 sm.set_time_store(time);
               }
@@ -433,7 +433,7 @@ void loop() {
               sm.set_page_count(7);
             }
             if (sm.get_page_count()==2){
-              data.off=data.off+(round(sm.get_training()*0.5));
+              data.off=data.off+(round(sm.get_training()*5));
               sm.set_page_count(8);
             }
             if (sm.get_page_count()==3){
@@ -446,7 +446,7 @@ void loop() {
             }
 
             if (sm.get_page_count()==5){
-              data.brn=data.brn+(sm.get_training()*2.5);
+              data.brn=data.brn+(sm.get_training()*5);
               sm.set_page_count(11);
 
             }

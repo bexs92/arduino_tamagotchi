@@ -30,7 +30,7 @@ const unsigned char* clock_bitmaps[24]={
     clock_23
 };
 
-const unsigned char* number_bitmap[10] = {
+extern const unsigned char* number_bitmap[10] = {
     number_0,
     number_1,
     number_2,

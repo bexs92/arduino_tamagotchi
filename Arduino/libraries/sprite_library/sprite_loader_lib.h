@@ -182,9 +182,11 @@ extern const unsigned char menu_alert [] PROGMEM;
         void spd_anim(int frameNumber);
         void def_anim(int frameNumber);
         void off_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count);
+        void brn_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count);
         void rest_anim(int frameNumber);
         void draw_side_menu(int sound_status, int light_status);
         void select_side_menu(int sound_status, int light_status,int page_number);
+        void display_art();
 
 
 

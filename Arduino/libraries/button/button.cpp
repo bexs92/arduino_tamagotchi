@@ -39,6 +39,8 @@ int tone_prev_time = 0;
 
 const int A_max_count[9] = {4,8,2,6,0,0,2,0,2};
 
+const int time_training[2] = {2,5};
+
 //--------------------------------------------------------------------------------------------
 
 Statemachine::Statemachine(){
@@ -115,12 +117,14 @@ void Statemachine::check(unsigned long time,int sound_status){
                                 if(sound_status==1){
                                     tone(sound_pin,G_mid);
                                 }
-                                if(page_count!=2){
+                                if(page_count!=2&&page_count!=5){
                                     training_count=training_count+1;
                                     in_action=1;
 
                                 }
+
                                 else{
+
                                     in_action=1;
                                     if(time-time_store<1500){
                                         if(training_count==0){

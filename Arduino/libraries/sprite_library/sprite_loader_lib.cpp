@@ -676,6 +676,9 @@ void animation::draw_menu(int frame_number,unsigned long time ,int action,int ne
             if(page_number==4){
                 spd_anim(sm.get_training());
             }
+            if(page_number==5){
+                brn_anim(frame_number,sm.get_time_store(),time,sm.get_training());
+            }
 
         }
         else{
@@ -823,8 +826,10 @@ void animation::stat_page(int frame_number,int page_number,Tamagotchi data,info_
 
         int transfer =1;
 
-        lcd.setCursor(4,16);
-        lcd.println("Happiness");
+        //lcd.setCursor(4,16);
+
+        //lcd.println("Happiness");
+        lcd.drawBitmap(2,16,happiness_bitmap,41,12,BLACK);
 
         int happy_diff= (data.happy)%10;
 
@@ -850,8 +855,9 @@ void animation::stat_page(int frame_number,int page_number,Tamagotchi data,info_
 
         int transfer =1;
 
-        lcd.setCursor(4,16);
-        lcd.println("Discipline");
+        //lcd.setCursor(4,16);
+        //lcd.println("Discipline");
+        lcd.drawBitmap(2,16,discipline_bitmap,41,12,BLACK);
 
         int disc_diff= (data.disc)%10;
 
@@ -956,6 +962,8 @@ void animation::training_page(int page_number,Tamagotchi data,Statemachine sm){
     }
 
     else {
+        lcd.setTextColor(BLACK,WHITE);
+
         int current_stat[6] = {data.hp,data.mp,data.off,data.def,data.spd,data.brn};
 
         lcd.setCursor(4,8);
@@ -965,22 +973,64 @@ void animation::training_page(int page_number,Tamagotchi data,Statemachine sm){
 
         int stat_num = page_number-6;
 
-        if (stat_num>1){
-            lcd.println(current_stat[page_number-6]-(round(sm.get_training()*2.5)));
-        }
-        else {
+        Serial.println(stat_num);
+
+        if (stat_num==0){
+            Serial.println("Number 0");
             lcd.println(current_stat[page_number-6]-(sm.get_training()*5));
+        }
+
+        if (stat_num==1){
+            Serial.println("Number 1");
+            lcd.println(current_stat[page_number-6]-(sm.get_training()*5));
+        }
+
+        if(stat_num==2){
+            Serial.println("Number 2");
+            lcd.println(current_stat[page_number-6]-round((sm.get_training()*5)));
+        }
+
+        if(stat_num==3){
+            Serial.println("Number 3");
+            lcd.println(current_stat[page_number-6]-round((sm.get_training()*2.5)));
+        }
+
+        if(stat_num==4){
+            Serial.println("Number 4");
+            lcd.println(current_stat[page_number-6]-round((sm.get_training()*2.5)));
+        }
+
+        if(stat_num==5){
+            Serial.println("Number 5");
+            lcd.println(current_stat[page_number-6]-round((sm.get_training()*5)));
         }
 
         lcd.setCursor(4,28);
         lcd.println("+");
 
-         lcd.setCursor(8,28);
+        lcd.setCursor(8,28);
 
-        if (stat_num>1){
+        if (stat_num==0){
+            lcd.println(sm.get_training()*5);
+        }
+
+        if (stat_num==1){
+            lcd.println(sm.get_training()*5);
+        }
+
+        if(stat_num==2){
+            lcd.println(sm.get_training()*5);
+        }
+
+        if(stat_num==3){
             lcd.println(round(sm.get_training()*2.5));
         }
-        else {
+
+        if(stat_num==4){
+            lcd.println(round(sm.get_training()*2.5));
+        }
+
+        if(stat_num==5){
             lcd.println(sm.get_training()*5);
         }
 
@@ -1405,9 +1455,77 @@ void animation::off_anim(int frameNumber,unsigned long charge_time,unsigned long
         }
     }
 
-    //lcd.display();
+}
+
+//---------------------------------------------------------------------------------------------
+
+void animation::brn_anim(int frameNumber,unsigned long charge_time,unsigned long time,int training_count) {
+
+    lcd.setTextColor(BLACK,WHITE);
+
+    if(time-charge_time<1500){
+        if(training_count==0){
+
+            lcd.drawBitmap(4,16,chalk_board,26,16,BLACK);
+
+            if (frameNumber%2==0){
+                lcd.drawBitmap(32,16,crouch_L,16,16,BLACK);
+            }
+
+            else {
+                lcd.drawBitmap(32,16,sad_L,16,16,BLACK);
+                //lcd.drawBitmap(48,16,thinking,11,10,BLACK);
+            }
+
+            lcd.setCursor(16,24);
+            lcd.println(time%9);
+
+            lcd.drawRect(5,33,33,10,BLACK);
+            int percent=round(((((time-charge_time)*100)/1500))/10);
+
+            for (int i=0; i<percent+1; i++) {
+                lcd.drawRect((7+(3*i)),35,2,6,BLACK);
+            }
+
+        }
+        else {
+
+            lcd.drawBitmap(4,16,chalk_board,26,16,BLACK);
+            lcd.setCursor(16,24);
+            lcd.println(time%9);
+
+            lcd.drawBitmap(32,16,roar_L,11,10,BLACK);
+
+            lcd.drawRect(5,33,33,10,BLACK);
+
+            for (int i=0; i<training_count; i++) {
+                lcd.drawRect((7+(3*i)),35,2,6,BLACK);
+            }
+        }
+
+    }
+
+    else {
+
+        lcd.drawBitmap(4,16,chalk_board,26,16,BLACK);
+
+        if(training_count>8){
+
+            lcd.drawBitmap(32,16,happy_L,16,16,BLACK);
+            lcd.setCursor(16,24);
+            lcd.println(4);
+
+        }
+        else {
+            lcd.drawBitmap(32,16,sleep_L,16,16,BLACK);
+            lcd.setCursor(16,24);
+            lcd.println(3);
+        }
+
+    }
 
 }
+
 
 //---------------------------------------------------------------------------------------------
 
@@ -1440,6 +1558,8 @@ void animation::draw_side_menu(int sound_status, int light_status){
 
 void animation::select_side_menu(int sound_status, int light_status,int page_number){
 
+    display_art();
+
     const unsigned char* selected_sprites[4]={
         side_menu_sprites[0][selection_array[page_number][0]][sound_status],
         side_menu_sprites[1][selection_array[page_number][1]][light_status],
@@ -1456,7 +1576,12 @@ void animation::select_side_menu(int sound_status, int light_status,int page_num
                        BLACK);
     }
 
+}
 
+void animation::display_art(){
+    //I think it needs to be reduced by -1 pixel to leave a gap
+    lcd.drawBitmap(2,2,ART_3,46,44,BLACK);
+    lcd.drawBitmap(68,48,walk_L,16,16,BLACK);
 }
 
 
